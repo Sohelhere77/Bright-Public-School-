@@ -59,9 +59,9 @@ const TABS={
  students:{label:'Students / छात्र',run:()=>crud('students',[['name','Name / नाम'],['class','Class / कक्षा','sel'],['roll','Roll no','number'],['father_name',"Father's name"],['mother_name',"Mother's name"],['phone','Phone'],['address','Address'],['dob','Date of birth','date']],['class','roll','name','father_name','phone'],'class',false,!isAdm())},
  sa:{label:'Student attendance',run:()=>attendance('students','student_attendance','student_id',true)},
  ta:{label:'Teacher attendance',run:()=>attendance('teachers','teacher_attendance','teacher_id',false)},
- teachers:{label:'Teachers / शिक्षक',run:()=>crud('teachers',[['name','Name'],['subject','Subject'],['qualification','Qualification'],['photo_url','Photo link (URL)']],['name','subject','qualification'],'created_at')},
+ teachers:{label:'Teachers / शिक्षक',run:()=>crud('teachers',[['name','Name'],['subject','Subject'],['qualification','Qualification'],['photo_url','Photo (upload karein)','photo']],['photo_url','name','subject','qualification'],'created_at')},
  notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true,ME.access==='staff')},
- gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photo link (URL)'],['caption','Caption']],['url','caption'],'created_at',true)}
+ gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photos (ek saath kai chun sakte hain)','photos'],['caption','Caption (optional)']],['url','caption'],'created_at',true)}
 };
 async function start(){
  const {data:{session}}=await sb.auth.getSession();
@@ -117,14 +117,49 @@ async function staffTab(){
  };
 }
 
+async function shrink(file){
+ return new Promise(res=>{const img=new Image();
+  img.onload=()=>{const m=1280,k=Math.min(1,m/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext('2d').drawImage(img,0,0,c.width,c.height);c.toBlob(bl=>res(bl||file),'image/jpeg',0.82)};
+  img.onerror=()=>res(file);img.src=URL.createObjectURL(file)});
+}
+async function upPhoto(file,folder){
+ const b=await shrink(file);
+ const p=folder+'/'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
+ const {error}=await sb.storage.from('photos').upload(p,b,{contentType:b.type||'image/jpeg'});
+ if(error)throw error;
+ return sb.storage.from('photos').getPublicUrl(p).data.publicUrl;
+}
 async function crud(table,fields,cols,order,desc,ro){
  const m=$('main');
- m.innerHTML=(ro?'':`<div class="f">${fields.map(([k,l,t])=>t==='sel'?`<label>${l}<select id="f_${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:`<label>${l}<input id="f_${k}" type="${t||'text'}"></label>`).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span>`)+`<h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
- if(!ro)$('add').onclick=async()=>{const o={};fields.forEach(([k,,t])=>{const v=$('f_'+k).value.trim();if(v)o[k]=t==='number'?+v:v});const {error}=await sb.from(table).insert(o);if(error)$('e').textContent=error.message;else crud(table,fields,cols,order,desc,ro)};
+ const inp=([k,l,t])=>t==='sel'?`<label>${l}<select id="f_${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:(t==='photo'||t==='photos')?`<label>${l}<input id="f_${k}" type="file" accept="image/*" ${t==='photos'?'multiple':''}></label>`:`<label>${l}<input id="f_${k}" type="${t||'text'}"></label>`;
+ m.innerHTML=(ro?'':`<div class="f">${fields.map(inp).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span>`)+`<h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
+ if(!ro)$('add').onclick=async()=>{
+  const btn=$('add'),msg=$('e');msg.className='msg';
+  try{
+   const o={};let files=[],pk=null;
+   for(const [k,,t] of fields){
+    if(t==='photo'||t==='photos'){pk=k;files=[...$('f_'+k).files];continue}
+    const v=$('f_'+k).value.trim();if(v)o[k]=t==='number'?+v:v}
+   if(table==='gallery'&&!files.length)throw new Error('Pehle photo chunein');
+   btn.disabled=true;msg.textContent='Upload ho raha hai, thoda ruko...';
+   if(pk&&files.length){
+    const rows=[];for(const f of files)rows.push({...o,[pk]:await upPhoto(f,table)});
+    const {error}=await sb.from(table).insert(rows);if(error)throw error;
+   }else{const {error}=await sb.from(table).insert(o);if(error)throw error}
+   crud(table,fields,cols,order,desc,ro);
+  }catch(x){btn.disabled=false;msg.textContent=x.message}
+ };
  const {data,error}=await sb.from(table).select('*').order(order,{ascending:!desc});
  if(error){$('lst').textContent=error.message;return}
- $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}${ro?'':'<th></th>'}</tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}${ro?'':`<td><button class="r" data-id="${r.id}">Delete</button></td>`}</tr>`).join('')}</table>`;
- if(!ro)$('lst').onclick=async e=>{const id=e.target.dataset.id;if(id&&confirm('Delete karein?')){await sb.from(table).delete().eq('id',id);crud(table,fields,cols,order,desc,ro)}};
+ const cell=(r,c)=>(c==='url'||c==='photo_url')?(r[c]?`<img src="${esc(r[c])}" alt="" style="height:48px;border-radius:4px">`:''):esc(r[c]);
+ $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}${ro?'':'<th></th>'}</tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${cell(r,c)}</td>`).join('')}${ro?'':`<td><button class="r" data-id="${r.id}">Delete</button></td>`}</tr>`).join('')}</table>`;
+ if(!ro)$('lst').onclick=async e=>{
+  const id=e.target.dataset.id;
+  if(id&&confirm('Delete karein?')){
+   const r=data.find(x=>x.id===id);const u=(r&&(r.url||r.photo_url))||'';const i=u.indexOf('/photos/');
+   if(i>-1)await sb.storage.from('photos').remove([decodeURIComponent(u.slice(i+8))]);
+   await sb.from(table).delete().eq('id',id);crud(table,fields,cols,order,desc,ro)}
+ };
 }
 async function attendance(list,att,idCol,byClass){
  const m=$('main');
