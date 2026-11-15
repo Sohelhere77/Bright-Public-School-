@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bright Public School, Rajmahal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--brown:#2B1B14;--green:#1F3D2B;--sand:#E9DFC9;--gold:#C9A24B;--bg:#FAF8F4;--ink:#2B1B14;--mut:#6B5B50;--line:#E3DACB;--f:'Plus Jakarta Sans','Noto Sans Devanagari',sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:68px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}
+header{position:sticky;top:0;z-index:9;background:var(--brown);color:#fff}
+header .w{display:flex;align-items:center;justify-content:space-between;height:60px;gap:10px}
+.logo{font:800 17px var(--f);color:#fff;text-decoration:none}
+nav{display:flex;gap:16px;overflow-x:auto;font-size:14px}
+nav a{color:var(--sand);text-decoration:none;white-space:nowrap}
+#lang{background:var(--gold);color:var(--brown);border:0;border-radius:6px;padding:6px 10px;font:600 13px var(--f);cursor:pointer}
+.hero{background:linear-gradient(135deg,var(--green),var(--brown));color:#fff;padding:60px 0}
+.hero h1{font:800 clamp(32px,7vw,56px)/1.15 var(--f);margin:0 0 14px;max-width:16ch}
+.hero p{max-width:48ch;color:var(--sand);margin:0 0 24px}
+.btn{display:inline-block;background:var(--gold);color:var(--brown);padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600}
+section{padding:52px 0}.alt{background:#fff;border-block:1px solid var(--line)}
+h2{font:800 clamp(24px,4vw,32px)/1.2 var(--f);color:var(--green);margin:0 0 18px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--green);border-radius:8px;padding:16px}
+.card h3{margin:0 0 4px;font-size:18px}.card small{color:var(--mut)}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;margin-bottom:10px;background:var(--sand)}
+table{border-collapse:collapse;width:100%;max-width:560px;background:#fff}
+td,th{padding:10px 12px;border:1px solid var(--line);text-align:left;font-size:15px}th{background:var(--sand)}
+.gal{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+.gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px}
+.n{padding:12px 0;border-top:1px solid var(--line);max-width:720px}.n time{color:var(--green);font-weight:600;font-size:14px}
+.n b{display:block}.mut{color:var(--mut)}
+footer{background:var(--brown);color:var(--sand);padding:26px 0;font-size:14px}
+a.adm{color:var(--gold)}
+</style>
+</head>
+<body>
+<header><div class="w">
+<a class="logo" href="#top">Bright Public School</a>
+<nav><a href="#admission" data-i="nav_adm"></a><a href="#fees" data-i="nav_fee"></a><a href="#teachers" data-i="nav_tch"></a><a href="#gallery" data-i="nav_gal"></a><a href="#notices" data-i="nav_not"></a><a href="#contact" data-i="nav_con"></a></nav>
+<button id="lang">English</button>
+</div></header>
+<main id="top">
+<div class="hero"><div class="w">
+<h1 data-i="h1"></h1><p data-i="sub"></p><a class="btn" href="#admission" data-i="apply"></a>
+</div></div>
+<section id="admission"><div class="w"><h2 data-i="nav_adm"></h2>
+<p data-i="adm_p" class="mut"></p>
+<ul><li data-i="d1"></li><li data-i="d2"></li><li data-i="d3"></li><li data-i="d4"></li></ul></div></section>
+<section id="fees" class="alt"><div class="w"><h2 data-i="nav_fee"></h2>
+<table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr>
+<tr><td>Nursery – UKG</td><td>₹ 000</td><td>₹ 000</td></tr>
+<tr><td>Class 1 – 5</td><td>₹ 000</td><td>₹ 000</td></tr></table>
+<p class="mut" data-i="fee_note"></p></div></section>
+<section id="teachers"><div class="w"><h2 data-i="nav_tch"></h2><div class="grid" id="tch"></div></div></section>
+<section id="gallery" class="alt"><div class="w"><h2 data-i="nav_gal"></h2><div class="gal" id="gal"></div></div></section>
+<section id="notices"><div class="w"><h2 data-i="nav_not"></h2><div id="not"></div></div></section>
+<section id="contact" class="alt"><div class="w"><h2 data-i="nav_con"></h2>
+<p><b data-i="addr_l"></b><br>Koilabazar, Rajmahal, Jharkhand</p>
+<p><b data-i="ph_l"></b><br><a href="tel:+910000000000">+91 00000 00000</a></p>
+<p><b data-i="tm_l"></b><br><span data-i="tm"></span></p></div></section>
+</main>
+<footer><div class="w">© 2026 Bright Public School · CBSE · <a class="adm" href="admin.html">Staff login</a></div></footer>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const T={hi:{nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",h1:"हर बच्चे की पहचान, हर बच्चे का भविष्य।",sub:"नर्सरी से कक्षा 5 तक CBSE शिक्षा। कोइलाबाज़ार, राजमहल।",apply:"प्रवेश के लिए आवेदन",adm_p:"नया सत्र के लिए प्रवेश खुले हैं। कृपया ये दस्तावेज़ लेकर स्कूल ऑफिस आएं:",d1:"बच्चे का जन्म प्रमाण पत्र",d2:"पिछली कक्षा की रिपोर्ट कार्ड",d3:"4 फोटो",d4:"पते का प्रमाण",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",fee_note:"सही शुल्क के लिए स्कूल ऑफिस से संपर्क करें।",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",tm:"सोमवार से शनिवार, सुबह 8 से दोपहर 2 बजे",none:"अभी कुछ नहीं है।",lng:"English"},
+en:{nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",h1:"Every child known. Every future bright.",sub:"CBSE education from Nursery to Class 5 at Koilabazar, Rajmahal.",apply:"Apply for admission",adm_p:"Admissions are open for the new session. Please bring these documents to the school office:",d1:"Child's birth certificate",d2:"Previous class report card",d3:"4 photographs",d4:"Address proof",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",fee_note:"Please contact the school office for exact fees.",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",tm:"Monday to Saturday, 8:00 am to 2:00 pm",none:"Nothing here yet.",lng:"हिन्दी"}};
+let L=localStorage.getItem('lang')||'hi';
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function apply(){document.documentElement.lang=L;document.querySelectorAll('[data-i]').forEach(e=>e.textContent=T[L][e.dataset.i]);document.getElementById('lang').textContent=T[L].lng;}
+document.getElementById('lang').onclick=()=>{L=L==='hi'?'en':'hi';localStorage.setItem('lang',L);apply();load();};
+async function load(){
+ if(CONFIG.url.includes('YOUR-'))return;
+ const sb=supabase.createClient(CONFIG.url,CONFIG.key);
+ const [t,g,n]=await Promise.all([sb.from('teachers').select('*').order('created_at'),sb.from('gallery').select('*').order('created_at',{ascending:false}),sb.from('notices').select('*').order('date',{ascending:false}).limit(10)]);
+ const none=`<p class="mut">${T[L].none}</p>`;
+ tch.innerHTML=(t.data||[]).map(x=>`<div class="card">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
+ gal.innerHTML=(g.data||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
+ not.innerHTML=(n.data||[]).map(x=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut">${esc(x.body)}</span></div>`).join('')||none;
+}
+apply();load();
+</script>
+</body>
+</html>

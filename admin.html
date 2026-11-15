@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Admin · Bright Public School</title>
+<style>
+:root{--brown:#2B1B14;--green:#1F3D2B;--sand:#E9DFC9;--gold:#C9A24B;--line:#E3DACB}
+*{box-sizing:border-box}body{margin:0;background:#FAF8F4;color:var(--brown);font:16px/1.5 'Noto Sans Devanagari',system-ui,sans-serif}
+header{background:var(--brown);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+header b{font-size:16px}button,select,input,textarea{font:inherit}
+button{background:var(--green);color:#fff;border:0;border-radius:6px;padding:9px 14px;cursor:pointer}
+button.g{background:var(--gold);color:var(--brown)}button.r{background:#8B2E2E;padding:5px 9px;font-size:13px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--sand)}
+.tabs button{background:#fff;color:var(--brown);white-space:nowrap}.tabs button.on{background:var(--green);color:#fff}
+main{padding:16px;max-width:900px;margin:0 auto}
+input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;background:#fff;margin:3px 0 10px}
+.f{display:grid;gap:0 12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}td,th{border:1px solid var(--line);padding:7px 8px;text-align:left}th{background:var(--sand)}
+.box{max-width:340px;margin:60px auto;padding:20px;background:#fff;border:1px solid var(--line);border-radius:10px}
+.msg{color:#8B2E2E}.att label{margin-right:10px;white-space:nowrap}.att input{width:auto;margin:0 3px 0 0}
+.wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<div id="login" class="box"><h2>Staff login</h2>
+<label>Email<input id="em" type="email" autocomplete="username"></label>
+<label>Password<input id="pw" type="password" autocomplete="current-password"></label>
+<button id="go">Login</button><p class="msg" id="lm"></p></div>
+<div id="app" hidden>
+<header><b>Bright Public School · Admin</b><span><span id="who"></span> <button class="g" id="out">Logout</button></span></header>
+<div class="tabs" id="tabs"></div><main id="main"></main></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script>
+const sb=supabase.createClient(CONFIG.url,CONFIG.key);
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const today=()=>new Date().toISOString().slice(0,10);
+const TABS={
+ students:{label:'Students / छात्र',run:()=>crud('students',[['name','Name / नाम'],['class','Class / कक्षा','sel'],['roll','Roll no','number'],['father_name',"Father's name"],['mother_name',"Mother's name"],['phone','Phone'],['address','Address'],['dob','Date of birth','date']],['class','roll','name','father_name','phone'],'class')},
+ sa:{label:'Student attendance',run:()=>attendance('students','student_attendance','student_id',true)},
+ ta:{label:'Teacher attendance',run:()=>attendance('teachers','teacher_attendance','teacher_id',false)},
+ teachers:{label:'Teachers / शिक्षक',run:()=>crud('teachers',[['name','Name'],['subject','Subject'],['qualification','Qualification'],['photo_url','Photo link (URL)']],['name','subject','qualification'],'created_at')},
+ notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true)},
+ gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photo link (URL)'],['caption','Caption']],['url','caption'],'created_at',true)}
+};
+async function start(){
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session){$('login').hidden=false;$('app').hidden=true;return}
+ const {data}=await sb.from('admins').select('role').eq('user_id',session.user.id).maybeSingle();
+ if(!data){await sb.auth.signOut();$('lm').textContent='Aap Admin nahi hain.';$('login').hidden=false;return}
+ $('login').hidden=true;$('app').hidden=false;$('who').textContent=data.role==='owner'?'Owner':'Admin';
+ $('tabs').innerHTML=Object.keys(TABS).map(k=>`<button data-k="${k}">${TABS[k].label}</button>`).join('');
+ $('tabs').onclick=e=>{const k=e.target.dataset.k;if(k)open(k)};open('students');
+}
+function open(k){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));TABS[k].run()}
+$('go').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});if(error)$('lm').textContent=error.message;else start()};
+$('out').onclick=async()=>{await sb.auth.signOut();location.reload()};
+
+async function crud(table,fields,cols,order,desc){
+ const m=$('main');
+ m.innerHTML=`<div class="f">${fields.map(([k,l,t])=>t==='sel'?`<label>${l}<select id="f_${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:`<label>${l}<input id="f_${k}" type="${t||'text'}"></label>`).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span><h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
+ $('add').onclick=async()=>{const o={};fields.forEach(([k,,t])=>{const v=$('f_'+k).value.trim();if(v)o[k]=t==='number'?+v:v});const {error}=await sb.from(table).insert(o);if(error)$('e').textContent=error.message;else crud(table,fields,cols,order,desc)};
+ const {data,error}=await sb.from(table).select('*').order(order,{ascending:!desc});
+ if(error){$('lst').textContent=error.message;return}
+ $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}<td><button class="r" data-id="${r.id}">Delete</button></td></tr>`).join('')}</table>`;
+ $('lst').onclick=async e=>{const id=e.target.dataset.id;if(id&&confirm('Delete karein?')){await sb.from(table).delete().eq('id',id);crud(table,fields,cols,order,desc)}};
+}
+async function attendance(list,att,idCol,byClass){
+ const m=$('main');
+ m.innerHTML=`<div class="f">${byClass?`<label>Class<select id="cl">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:''}<label>Date<input id="dt" type="date" value="${today()}"></label></div><div class="wrap" id="lst"></div><button id="sv" hidden>Save attendance</button> <span id="e"></span>`;
+ const load=async()=>{
+  let q=sb.from(list).select('*').order(byClass?'roll':'name');if(byClass)q=q.eq('class',$('cl').value);
+  const [{data:people},{data:rec}]=await Promise.all([q,sb.from(att).select('*').eq('date',$('dt').value)]);
+  const cur={};(rec||[]).forEach(r=>cur[r[idCol]]=r.status);
+  $('lst').innerHTML=`<table>${(people||[]).map(p=>`<tr><td>${byClass?esc(p.roll)+'. ':''}${esc(p.name)}</td><td class="att">${['P','A','L'].map(s=>`<label><input type="radio" name="r_${p.id}" value="${s}" ${(cur[p.id]||'P')===s?'checked':''}>${s==='P'?'Present':s==='A'?'Absent':'Leave'}</label>`).join('')}</td></tr>`).join('')}</table>`;
+  $('sv').hidden=!(people||[]).length;$('sv').onclick=async()=>{
+   const rows=(people||[]).map(p=>({[idCol]:p.id,date:$('dt').value,status:document.querySelector(`input[name="r_${p.id}"]:checked`).value}));
+   const {error}=await sb.from(att).upsert(rows,{onConflict:idCol+',date'});$('e').textContent=error?error.message:'Saved ✓';};
+ };
+ m.querySelectorAll('select,input').forEach(x=>x.onchange=load);load();
+}
+start();
+</script>
+</body>
+</html>
