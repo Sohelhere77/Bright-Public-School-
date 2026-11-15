@@ -6,6 +6,11 @@
 <meta name="theme-color" content="#0A110D">
 <title>Bright Public School</title>
 <link rel="icon" href="logo.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bright School">
 <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Plus+Jakarta+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#0A110D;--surface:#121C16;--surface2:#182419;--ink:#EAF3EC;--mut:#9FB3A5;--line:#25392C;--gold:#F5B700;--neon:#3DDC97;--green:#1F3D2B;--brown:#2B1B14;--red:#FF6B6B;--f:'Rajdhani','Noto Sans Devanagari',sans-serif}
@@ -514,6 +519,7 @@ async function slipAct(kind,type,p,pending,due){
 }
 
 
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 paint();load();
 loadMe().then(ok=>{if(location.hash==='#panel'){ok?goFirst():showLogin()}});
 </script>
