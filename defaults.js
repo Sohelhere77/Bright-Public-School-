@@ -1,4 +1,8 @@
 window.DEF={
+about_hi:"ब्राइट पब्लिक स्कूल, कोइलाबाज़ार, राजमहल (झारखंड), CBSE बोर्ड के अंतर्गत नर्सरी से कक्षा 5 तक की पढ़ाई कराता है।",
+about_en:"Bright Public School, Koilabazar, Rajmahal (Jharkhand), teaches Nursery to Class 5 under the CBSE board.",
+fac_hi:"",
+fac_en:"",
 school_name:"Bright Public School",
 h1_hi:"हर बच्चे की पहचान, हर बच्चे का भविष्य।",
 h1_en:"Every child known. Every future bright.",
@@ -17,6 +21,8 @@ email:"",
 hours_hi:"सोमवार से शनिवार, सुबह 8 से दोपहर 2 बजे",
 hours_en:"Monday to Saturday, 8:00 am to 2:00 pm"};
 window.SITE_FIELDS=[
+["about_hi","About school (Hindi)","area"],["about_en","About school (English)","area"],
+["fac_hi","Facilities, Hindi (har line ek facility; khali chhodein to section chhup jayega)","area"],["fac_en","Facilities, English (har line ek facility; khali chhodein to section chhup jayega)","area"],
 ["school_name","School name"],
 ["h1_hi","Main heading (Hindi)"],["h1_en","Main heading (English)"],
 ["sub_hi","Sub text (Hindi)","area"],["sub_en","Sub text (English)","area"],

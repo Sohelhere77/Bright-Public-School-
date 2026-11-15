@@ -3,76 +3,103 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0A110D">
 <title>Bright Public School</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="icon" href="logo.png">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Plus+Jakarta+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
-:root{--brown:#2B1B14;--green:#1F3D2B;--sand:#E9DFC9;--gold:#C9A24B;--bg:#FAF8F4;--ink:#2B1B14;--mut:#6B5B50;--line:#E3DACB;--f:'Plus Jakarta Sans','Noto Sans Devanagari',sans-serif}
-*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:68px}
-body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif}
-.w{max-width:1040px;margin:0 auto;padding:0 20px}
-header{position:sticky;top:0;z-index:9;background:var(--brown);color:#fff}
-header .w{display:flex;align-items:center;justify-content:space-between;height:60px;gap:10px}
-.logo{font:800 17px var(--f);color:#fff;text-decoration:none}
-nav{display:flex;gap:16px;overflow-x:auto;font-size:14px}
-nav a{color:var(--sand);text-decoration:none;white-space:nowrap}
-#lang{background:var(--gold);color:var(--brown);border:0;border-radius:6px;padding:6px 10px;font:600 13px var(--f);cursor:pointer}
-.hero{background:linear-gradient(135deg,var(--green),var(--brown));color:#fff;padding:60px 0}
-.hero h1{font:800 clamp(32px,7vw,56px)/1.15 var(--f);margin:0 0 14px;max-width:16ch}
-.hero p{max-width:48ch;color:var(--sand);margin:0 0 24px}
-.btn{display:inline-block;background:var(--gold);color:var(--brown);padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:600}
-section{padding:52px 0}.alt{background:#fff;border-block:1px solid var(--line)}
-h2{font:800 clamp(24px,4vw,32px)/1.2 var(--f);color:var(--green);margin:0 0 18px}
-.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-.card{background:#fff;border:1px solid var(--line);border-top:4px solid var(--green);border-radius:8px;padding:16px}
-.card h3{margin:0 0 4px;font-size:18px}.card small{color:var(--mut)}
-.card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;margin-bottom:10px;background:var(--sand)}
-table{border-collapse:collapse;width:100%;max-width:560px;background:#fff}
-td,th{padding:10px 12px;border:1px solid var(--line);text-align:left;font-size:15px}th{background:var(--sand)}
+:root{--bg:#0A110D;--surface:#121C16;--surface2:#182419;--ink:#EAF3EC;--mut:#9FB3A5;--line:#25392C;--gold:#F5B700;--neon:#3DDC97;--green:#1F3D2B;--brown:#2B1B14;--red:#FF6B6B;--f:'Rajdhani','Noto Sans Devanagari',sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:72px;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.65 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif;padding-bottom:calc(72px + env(safe-area-inset-bottom,0px));counter-reset:sec}
+.w{max-width:1040px;margin:0 auto;padding:0 20px}a{color:inherit}.mut{color:var(--mut)}
+:focus-visible{outline:2px solid var(--neon);outline-offset:2px}
+header{position:sticky;top:0;z-index:20;background:rgba(10,17,13,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header .w{display:flex;align-items:center;justify-content:space-between;height:62px;gap:10px}
+.logo{display:flex;align-items:center;gap:10px;font:700 20px var(--f);letter-spacing:.05em;text-transform:uppercase;text-decoration:none;color:var(--ink);white-space:nowrap;min-width:0}
+.logo img{height:42px;width:auto;filter:drop-shadow(0 0 6px rgba(245,183,0,.45))}
+.logo span{overflow:hidden;text-overflow:ellipsis}
+nav.top{display:none;gap:16px;font:600 15px var(--f);letter-spacing:.07em;text-transform:uppercase}
+nav.top a{color:var(--mut);text-decoration:none}nav.top a:hover{color:var(--neon)}
+@media(min-width:960px){nav.top{display:flex}}
+.cut{clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
+#lang{background:var(--gold);color:#1a1300;border:0;padding:8px 14px;font:700 15px var(--f);letter-spacing:.05em;cursor:pointer;clip-path:polygon(8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%,0 8px)}
+.hero{position:relative;overflow:hidden;padding:34px 0 44px;border-bottom:1px solid var(--line);background-color:var(--bg);background-image:radial-gradient(520px 280px at 85% 0%,rgba(61,220,151,.20),transparent 70%),radial-gradient(460px 260px at 0% 100%,rgba(245,183,0,.14),transparent 70%),linear-gradient(rgba(61,220,151,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(61,220,151,.06) 1px,transparent 1px);background-size:auto,auto,34px 34px,34px 34px}
+.hero .w{display:grid;gap:20px;grid-template-columns:1fr;align-items:center}
+.herologo{width:min(170px,44vw);justify-self:center;filter:drop-shadow(0 0 22px rgba(245,183,0,.35))}
+@media(prefers-reduced-motion:no-preference){.herologo{animation:fl 5s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-8px)}}}
+.hero h1{font:700 clamp(34px,8vw,66px)/1.05 var(--f);text-transform:uppercase;margin:0 0 12px;background:linear-gradient(90deg,#fff 30%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mut);max-width:46ch;margin:0 0 22px}
+.btn{display:inline-block;background:var(--gold);color:#1a1300;padding:13px 28px;font:700 18px var(--f);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;clip-path:polygon(12px 0,100% 0,100% calc(100% - 12px),calc(100% - 12px) 100%,0 100%,0 12px)}
+.btn:hover{filter:brightness(1.12)}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:24px;max-width:520px}
+.hud div{background:var(--surface);border:1px solid var(--line);border-top:2px solid var(--neon);padding:8px 6px;text-align:center}
+.hud b{display:block;font:700 19px var(--f);color:var(--gold)}.hud span{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.1em}
+@media(min-width:860px){.hero .w{grid-template-columns:1.25fr .75fr}.herologo{width:260px;order:2}}
+section{padding:50px 0;counter-increment:sec}.alt{background:var(--surface);border-block:1px solid var(--line)}
+section h2{font:700 clamp(26px,5vw,38px)/1.1 var(--f);text-transform:uppercase;letter-spacing:.03em;margin:0 0 20px;color:var(--ink)}
+section h2::before{content:"0" counter(sec) " //";display:block;font-size:14px;letter-spacing:.25em;color:var(--neon);margin-bottom:4px}
+section h2::after{content:"";display:block;width:64px;height:3px;background:linear-gradient(90deg,var(--gold),transparent);margin-top:8px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--neon);border-radius:6px;padding:16px}
+.card h3{margin:0 0 2px;font:700 21px var(--f);letter-spacing:.03em}.card small{color:var(--gold);font-weight:600}
+.card img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:4px;margin-bottom:10px;border:1px solid var(--line);background:var(--surface2)}
+ul.chips{list-style:none;margin:0;padding:0;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.chips li{background:var(--surface2);border:1px solid var(--line);padding:11px 14px;font-weight:600}.chips li::before{content:"▸ ";color:var(--neon)}
+table{border-collapse:collapse;width:100%;max-width:640px;background:var(--surface)}
+td,th{padding:10px 12px;border:1px solid var(--line);text-align:left;font-size:15px;vertical-align:top}
+th{background:var(--surface2);color:var(--gold);font:700 15px var(--f);text-transform:uppercase;letter-spacing:.08em}
 .gal{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
-.gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px}
-.n{padding:12px 0;border-top:1px solid var(--line);max-width:720px}.n time{color:var(--green);font-weight:600;font-size:14px}
-.n b{display:block}.mut{color:var(--mut)}
-footer{background:var(--brown);color:var(--sand);padding:26px 0;font-size:14px}
-a.adm{color:var(--gold)}
-
-body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
-#bar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:var(--brown);border-top:1px solid #4a3328;padding-bottom:env(safe-area-inset-bottom,0px)}
-#bar button{flex:1;background:none;border:0;color:var(--sand);padding:8px 0 6px;font:600 12px var(--f);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
-#bar button span{font-size:20px;line-height:1}#bar button.on{color:var(--gold)}
-#sheet{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.45);display:flex;align-items:flex-end}
-#sheet[hidden]{display:none}
-.sh{background:var(--bg);width:100%;border-radius:16px 16px 0 0;padding:18px 16px calc(84px + env(safe-area-inset-bottom,0px));max-height:85vh;overflow:auto}
+.gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.n{padding:12px 14px;margin-bottom:8px;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--gold);max-width:720px}
+.n time{color:var(--gold);font:700 14px var(--f);letter-spacing:.1em}.n b{display:block}
+footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--mut);font-size:14px;background:#070C09}a.adm{color:var(--gold)}
+#bar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:rgba(10,17,13,.96);backdrop-filter:blur(8px);border-top:1px solid var(--neon);padding-bottom:env(safe-area-inset-bottom,0px)}
+#bar button{flex:1;background:none;border:0;color:var(--mut);padding:8px 0 6px;font:700 13px var(--f);letter-spacing:.08em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px}
+#bar button span{font-size:20px;line-height:1}#bar button.on{color:var(--gold);text-shadow:0 0 10px rgba(245,183,0,.6)}
+#sheet{position:fixed;inset:0;z-index:25;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}#sheet[hidden]{display:none}
+.sh{background:var(--bg);width:100%;border-radius:16px 16px 0 0;border-top:2px solid var(--neon);padding:16px 14px calc(88px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow:auto}
+.fold{margin-bottom:10px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.fold summary{padding:12px 14px;font:700 18px var(--f);letter-spacing:.05em;text-transform:uppercase;color:var(--gold);cursor:pointer;list-style:none}
+.fold summary::-webkit-details-marker{display:none}.fold summary::after{content:"▾";float:right;color:var(--neon)}.fold[open] summary::after{content:"▴"}
+.fold .shg{padding:0 10px 10px}
 .shg{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.shg button{background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px;text-align:left;font:600 14px var(--f);color:var(--brown);cursor:pointer;display:flex;gap:8px;align-items:center}
+.shg button{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:12px;text-align:left;font:600 15px 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif;color:var(--ink);cursor:pointer;display:flex;gap:8px;align-items:center}
+.shg button:hover{border-color:var(--neon)}
 #panelView{padding:24px 0 40px;min-height:70vh}
-#panelView h2{margin-bottom:4px}
-#panelView input,#panelView select,#panelView textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;background:#fff;margin:3px 0 10px;font:inherit;color:var(--ink)}
-#panelView label{display:block;font-size:14px}
-#panelView button{background:var(--green);color:#fff;border:0;border-radius:6px;padding:9px 14px;cursor:pointer;font:inherit}
-#panelView button.g{background:var(--gold);color:var(--brown)}
-#panelView button.r{background:#8B2E2E;padding:5px 9px;font-size:13px}
+#panelView h2{font:700 30px var(--f);text-transform:uppercase;margin:0 0 4px;color:var(--gold)}
+#panelView input,#panelView select,#panelView textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;background:var(--surface2);margin:3px 0 10px;font:inherit;color:var(--ink)}
+#panelView label{display:block;font-size:14px;color:var(--mut)}
+#panelView button{background:var(--green);color:#fff;border:1px solid var(--neon);border-radius:6px;padding:9px 14px;cursor:pointer;font:600 15px 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif}
+#panelView button.g{background:var(--gold);color:#1a1300;border-color:var(--gold)}
+#panelView button.r{background:#7A2323;border-color:#7A2323;padding:5px 9px;font-size:13px}
 #panelView button:disabled{opacity:.6}
 #panelView .f{display:grid;gap:0 12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
-#panelView table{max-width:none;font-size:14px}
-#panelView td select{margin:0;padding:5px}#panelView td button{margin:2px 0}
-#panelView .box{max-width:360px;margin:20px auto;padding:20px;background:#fff;border:1px solid var(--line);border-radius:10px}
-#panelView .msg{color:#8B2E2E}#panelView .ok{color:var(--green);font-weight:600}
-#panelView .att label{display:inline;margin-right:10px;white-space:nowrap}#panelView .att input{width:auto;margin:0 3px 0 0}
+#panelView table{max-width:none;font-size:14px}#panelView td select{margin:0;padding:5px}#panelView td button{margin:2px 0}
+#panelView h3{font:700 20px var(--f);text-transform:uppercase;letter-spacing:.04em;color:var(--neon)}
+#panelView .box{max-width:360px;margin:20px auto;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+#panelView .msg{color:var(--red)}#panelView .ok{color:var(--neon);font-weight:600}
+#panelView .att label{display:inline;margin-right:10px;white-space:nowrap;color:var(--ink)}#panelView .att input{width:auto;margin:0 3px 0 0}
 #panelView .wrap{overflow-x:auto}
 </style>
 </head>
 <body>
 <header><div class="w">
-<a class="logo" href="#top" data-n></a>
-<nav><a href="#admission" data-i="nav_adm"></a><a href="#fees" data-i="nav_fee"></a><a href="#teachers" data-i="nav_tch"></a><a href="#gallery" data-i="nav_gal"></a><a href="#notices" data-i="nav_not"></a><a href="#contact" data-i="nav_con"></a></nav>
+<a class="logo" href="#top"><img src="logo.png" alt=""><span data-n></span></a>
+<nav class="top"><a href="#about" data-i="nav_about"></a><a href="#admission" data-i="nav_adm"></a><a href="#fees" data-i="nav_fee"></a><a href="#teachers" data-i="nav_tch"></a><a href="#gallery" data-i="nav_gal"></a><a href="#notices" data-i="nav_not"></a><a href="#contact" data-i="nav_con"></a></nav>
 <button id="lang">English</button>
 </div></header>
 <div id="site"><main id="top">
 <div class="hero"><div class="w">
+<img class="herologo" src="logo.png" alt="Bright Public School">
+<div>
 <h1 data-s="h1"></h1><p data-s="sub"></p><a class="btn" href="#admission" data-i="apply"></a>
+<div class="hud"><div><b>CBSE</b><span data-i="hud1"></span></div><div><b>Nursery–5</b><span data-i="hud2"></span></div><div><b>Rajmahal</b><span data-i="hud3"></span></div></div>
+</div>
 </div></div>
+<section id="about"><div class="w"><h2 data-i="nav_about"></h2><p data-s="about" style="white-space:pre-line;max-width:60ch"></p></div></section>
+<section id="facSec" class="alt"><div class="w"><h2 id="facilities" data-i="nav_fac"></h2><ul class="chips" id="fac"></ul></div></section>
 <section id="admission"><div class="w"><h2 data-i="nav_adm"></h2>
-<p data-s="adm_p" class="mut"></p><ul id="docs"></ul></div></section>
+<p data-s="adm_p" class="mut"></p><ul class="chips" id="docs"></ul></div></section>
 <section id="fees" class="alt"><div class="w"><h2 data-i="nav_fee"></h2>
 <table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr><tbody id="feerows"></tbody></table>
 <p class="mut" data-s="fee_note"></p></div></section>
@@ -87,14 +114,14 @@ body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
 </main>
 <footer><div class="w">© 2026 <span data-n></span> · CBSE · <a class="adm" href="#" id="fl">Staff login</a></div></footer></div>
 <div id="panelView" hidden><div class="w"><h2 id="ptitle"></h2><p class="mut" id="pwho" style="margin:0 0 14px"></p><div id="pmain"></div></div></div>
-<nav id="bar"><button id="bHome" class="on"><span>🏠</span>Home</button><button id="bMenu"><span>👤</span>Staff login</button></nav>
+<nav id="bar"><button id="bHome" class="on"><span>🏠</span><i style="font-style:normal" data-i="nav_home"></i></button><button id="bExp"><span>🧭</span><i style="font-style:normal" data-i="nav_exp"></i></button><button id="bMenu"><span>🔐</span>Staff login</button></nav>
 <div id="sheet" hidden><div class="sh" id="shBody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="defaults.js"></script>
 <script>
-const T={hi:{nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",apply:"प्रवेश के लिए आवेदन",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",none:"अभी कुछ नहीं है।",lng:"English"},
-en:{nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Apply for admission",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",none:"Nothing here yet.",lng:"हिन्दी"}};
+const T={hi:{nav_home:"होम",nav_exp:"मेन्यू",nav_about:"हमारे बारे में",nav_fac:"सुविधाएँ",hud1:"बोर्ड",hud2:"कक्षाएँ",hud3:"स्थान",f_school:"विद्यालय",f_students:"छात्र व अभिभावक",f_media:"मीडिया",f_contact:"संपर्क",nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",apply:"प्रवेश के लिए आवेदन",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",none:"अभी कुछ नहीं है।",lng:"English"},
+en:{nav_home:"Home",nav_exp:"Menu",nav_about:"About",nav_fac:"Facilities",hud1:"Board",hud2:"Classes",hud3:"Location",f_school:"School",f_students:"Students & Parents",f_media:"Media",f_contact:"Contact",nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Apply for admission",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",none:"Nothing here yet.",lng:"हिन्दी"}};
 let L=localStorage.getItem('lang')||'hi',S={},D={},ME=null;
 const sb=CONFIG.url.includes('YOUR-')?null:supabase.createClient(CONFIG.url,CONFIG.key);
 const $=id=>document.getElementById(id);
@@ -113,6 +140,7 @@ function paint(){
  $('docs').innerHTML=lines(lv('docs')).map(x=>`<li>${esc(x)}</li>`).join('');
  $('feerows').innerHTML=lines(v('fees')).map(r=>{const c=r.split('|').map(s=>s.trim());return `<tr><td>${esc(c[0])}</td><td>${esc(c[1])}</td><td>${esc(c[2])}</td></tr>`}).join('');
  $('addr').textContent=v('address');
+ const fcl=lines(lv('fac'));$('fac').innerHTML=fcl.map(x=>`<li>${esc(x)}</li>`).join('');$('facSec').hidden=!fcl.length;
  const p=v('phone');$('ph').textContent=p;$('ph').href='tel:'+p.replace(/[^+\d]/g,'');
  const e=v('email');$('emp').hidden=!e;$('em').textContent=e;$('em').href='mailto:'+e;
  const none=`<p class="mut">${T[L].none}</p>`;
@@ -160,7 +188,7 @@ const ICON={fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓'
 const setBar=a=>{$('bHome').classList.toggle('on',a==='home');$('bMenu').classList.toggle('on',a==='panel')};
 function showSite(){$('site').hidden=false;$('panelView').hidden=true;$('sheet').hidden=true;setBar('home');window.scrollTo(0,0)}
 function showPanel(){$('site').hidden=true;$('panelView').hidden=false;$('sheet').hidden=true;setBar('panel');window.scrollTo(0,0)}
-const barLabel=()=>{$('bMenu').innerHTML=ME?'<span>☰</span>Panel':'<span>👤</span>Staff login'};
+const barLabel=()=>{$('bMenu').innerHTML=ME?'<span>🎮</span>Panel':'<span>🔐</span>Staff login'};
 async function loadMe(){
  if(!sb)return false;
  const {data:{session}}=await sb.auth.getSession();
@@ -186,16 +214,33 @@ function openTab(k){lastTab=k;
  TABS[k].run();
 }
 const goFirst=()=>openTab(Object.keys(TABS).filter(allowed)[0]);
+const foldersHTML=(groups)=>groups.map(g=>`<details class="fold" open><summary>${g[0]}</summary><div class="shg">${g[1]}</div></details>`).join('');
+const GROUPS=[['📁 Management',['fees','salary']],['📁 People',['students','teachers','staff']],['📁 Attendance',['sa','ta']],['📁 Website',['site','notices','gallery']]];
 function openSheet(){
- const keys=Object.keys(TABS).filter(allowed),mg=keys.filter(k=>k==='fees'||k==='salary'),rest=keys.filter(k=>!mg.includes(k));
+ const keys=Object.keys(TABS).filter(allowed);
  const btn=k=>`<button data-k="${k}"><span>${ICON[k]}</span>${TABS[k].label}</button>`;
- $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p>${mg.length?`<h3 style="margin:6px 0">📁 Management</h3><div class="shg">${mg.map(btn).join('')}</div><h3 style="margin:14px 0 6px">📋 School</h3>`:''}<div class="shg">${rest.map(btn).join('')}<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button></div>`;
+ const gs=GROUPS.map(([n,ks])=>[n,ks.filter(k=>keys.includes(k)).map(btn).join('')]).filter(g=>g[1]);
+ gs.push(['📁 Account','<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button>']);
+ $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p>`+foldersHTML(gs);
+ $('sheet').hidden=false;
+}
+function openExplore(){
+ const t=T[L],b=(id,ic,l)=>`<button data-go="${id}"><span>${ic}</span>${l}</button>`;
+ const fac=lines(lv('fac')).length?b('facilities','🎮',t.nav_fac):'';
+ $('shBody').innerHTML=foldersHTML([
+  ['📁 '+t.f_school,b('about','🏫',t.nav_about)+fac+b('teachers','👩‍🏫',t.nav_tch)],
+  ['📁 '+t.f_students,b('admission','📝',t.nav_adm)+b('fees','💰',t.nav_fee)+b('notices','📢',t.nav_not)],
+  ['📁 '+t.f_media,b('gallery','🖼️',t.nav_gal)],
+  ['📁 '+t.f_contact,b('contact','📞',t.nav_con)+'<button data-act="staff"><span>🔐</span>Staff login</button>']
+ ]);
  $('sheet').hidden=false;
 }
 $('sheet').onclick=async e=>{
  if(e.target.id==='sheet'){$('sheet').hidden=true;return}
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.k)openTab(b.dataset.k);
+ if(b.dataset.go){$('sheet').hidden=true;showSite();const el=$(b.dataset.go);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),40)}
+ else if(b.dataset.act==='staff'){$('sheet').hidden=true;$('bMenu').click()}
+ else if(b.dataset.k)openTab(b.dataset.k);
  else if(b.dataset.act==='out'){await sb.auth.signOut();location.reload()}
  else if(b.dataset.act==='pw'){
   $('sheet').hidden=true;
@@ -205,6 +250,7 @@ $('sheet').onclick=async e=>{
  }
 };
 $('bHome').onclick=showSite;
+$('bExp').onclick=openExplore;
 $('bMenu').onclick=()=>{if(!ME)return showLogin();$('sheet').hidden?openSheet():($('sheet').hidden=true)};
 $('fl').onclick=e=>{e.preventDefault();$('bMenu').click()};
 document.querySelector('header nav').addEventListener('click',()=>{if(!$('panelView').hidden)showSite()});
@@ -339,11 +385,11 @@ async function mgmtList(type){
  const B=Object.fromEntries((bb.data||[]).map(b=>[b.pid,b]));
  const rows=pp.data.map(p=>{const b=B[p.id]||{};return {p,due:(+b.charged||0)-(+b.paid||0)-(+b.discounted||0),monthly:+b.monthly||0,mode:b.mode}});
  const total=rows.reduce((s,r)=>s+Math.max(r.due,0),0),cnt=rows.filter(r=>r.due>0).length;
- $('pmain').innerHTML=`<div style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px"><b>${stu?'Total baki fees':'Total baki salary'}: ${money(total)}</b><br><small class="mut">${cnt} ${stu?'students':'staff'} ka baki hai. Auto mode mein har mahine ki aakhri tarikh (${lastDayText()}) ko apne aap judta hai.</small></div><div class="f">${stu?`<label>Class<select id="mc"><option value="">Sab</option>${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:''}<label>Search<input id="mq" placeholder="Naam"></label><label>Dikhayein<select id="mo"><option value="all">Sab</option><option value="due">Sirf jinka baki hai</option></select></label></div><div class="wrap" id="ml"></div>`;
+ $('pmain').innerHTML=`<div style="background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px"><b>${stu?'Total baki fees':'Total baki salary'}: ${money(total)}</b><br><small class="mut">${cnt} ${stu?'students':'staff'} ka baki hai. Auto mode mein har mahine ki aakhri tarikh (${lastDayText()}) ko apne aap judta hai.</small></div><div class="f">${stu?`<label>Class<select id="mc"><option value="">Sab</option>${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:''}<label>Search<input id="mq" placeholder="Naam"></label><label>Dikhayein<select id="mo"><option value="all">Sab</option><option value="due">Sirf jinka baki hai</option></select></label></div><div class="wrap" id="ml"></div>`;
  const draw=()=>{
   const c=stu?$('mc').value:'',q=$('mq').value.trim().toLowerCase(),o=$('mo').value;
   const list=rows.filter(r=>(!c||r.p.class===c)&&(!q||String(r.p.name).toLowerCase().includes(q))&&(o==='all'||r.due>0)).sort((a,b)=>b.due-a.due);
-  $('ml').innerHTML=`<table><tr><th>Name</th><th>Monthly</th><th>Mode</th><th>Baki</th><th></th></tr>${list.map(r=>`<tr><td>${esc(r.p.name)}<br><small class="mut">${stu?esc(r.p.class)+(r.p.roll?' · Roll '+esc(r.p.roll):''):esc(r.p.post||'')}</small></td><td>${r.monthly?money(r.monthly):'-'}</td><td>${r.mode?(r.mode==='auto'?'Auto':'Manual'):'Set nahi'}</td><td style="color:${r.due>0?'#8B2E2E':'#1F3D2B'};font-weight:600">${money(r.due)}</td><td><button data-o="${r.p.id}">Open</button></td></tr>`).join('')}</table>`;
+  $('ml').innerHTML=`<table><tr><th>Name</th><th>Monthly</th><th>Mode</th><th>Baki</th><th></th></tr>${list.map(r=>`<tr><td>${esc(r.p.name)}<br><small class="mut">${stu?esc(r.p.class)+(r.p.roll?' · Roll '+esc(r.p.roll):''):esc(r.p.post||'')}</small></td><td>${r.monthly?money(r.monthly):'-'}</td><td>${r.mode?(r.mode==='auto'?'Auto':'Manual'):'Set nahi'}</td><td style="color:${r.due>0?'var(--red)':'var(--neon)'};font-weight:600">${money(r.due)}</td><td><button data-o="${r.p.id}">Open</button></td></tr>`).join('')}</table>`;
  };
  $('pmain').querySelectorAll('select,input').forEach(x=>x.oninput=draw);draw();
  $('ml').onclick=e=>{const id=e.target.dataset.o;if(id)profile(type,id)};
@@ -367,12 +413,12 @@ async function profile(type,id){
  led.filter(x=>x.kind==='charge').forEach(c=>{const t=Math.min(pool,+c.amount);pool-=t;const r=+c.amount-t;if(r>0)pending.push({label:c.auto?(stu?'Monthly fee':'Monthly salary')+' · '+mlabel(c.month):(c.note||'Charge')+(c.month?' · '+mlabel(c.month):''),amt:r})});
  const LB=stu?{payment:'Fee received',charge:'Extra charge',discount:'Discount / waiver'}:{payment:'Salary paid / advance',charge:'Salary due / bonus',discount:'Deduction'};
  const mode=acc?acc.mode:'auto',amt=acc?acc.monthly_amount:0,smv=(acc&&acc.start_month?acc.start_month:monthStart()).slice(0,7);
- const card='background:#fff;border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0';
+ const card='background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0';
  const details=FL.filter(f=>f[2]!=='photo').map(([k,l])=>`<tr><th>${esc(l.split(' (')[0].split(' /')[0])}</th><td>${esc(p[k])}</td></tr>`).join('');
  let h=`<button id="pbk">← Back</button>`;
  h+=`<div style="${card}">${p.photo_url?`<img src="${esc(p.photo_url)}" alt="" style="height:90px;border-radius:8px;margin-bottom:8px"><br>`:''}<table>${details}</table>${isAdm()?`<p><button class="g" id="ped">Edit details</button></p><div id="pedit" hidden>${FL.map(f=>inp(f,'p_')).join('')}<button id="psv">Save details</button> <span id="pem" class="msg"></span></div>`:''}</div>`;
  if(see){
-  h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'#8B2E2E':'#1F3D2B'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
+  h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'var(--red)':'var(--neon)'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
   if(pending.length)h+=`<p style="margin:10px 0 0"><b>Pending:</b></p><table>${pending.map(r=>`<tr><td>${esc(r.label)}</td><td>${money(r.amt)}</td></tr>`).join('')}</table>`;
   h+=`<p style="margin:12px 0 0"><button data-sl="png">${stu?'Fee slip (PNG)':'Salary slip (PNG)'}</button> <button data-sl="pdf">PDF</button> <button class="g" data-sl="share">Share</button></p></div>`;
   h+=`<div style="${card}"><b>${stu?'Fee':'Salary'} setting</b><div class="f"><label>Mode<select id="acm" ${ed?'':'disabled'}><option value="auto" ${mode==='auto'?'selected':''}>Auto (mahine ki aakhri tarikh ko apne aap)</option><option value="manual" ${mode==='manual'?'selected':''}>Manual (khud entry karein)</option></select></label><label>Monthly ${stu?'fee':'salary'} (₹)<input id="aca" type="number" min="0" value="${amt}" ${ed?'':'disabled'}></label><label>Shuru ka mahina<input id="acv" type="month" value="${smv}" ${ed?'':'disabled'}></label></div>`;
@@ -421,6 +467,8 @@ async function makeSlip(type,p,pending,due){
  const F=(w,s)=>`${w} ${s}px "Plus Jakarta Sans","Noto Sans Devanagari",sans-serif`;
  x.fillStyle='#fff';x.fillRect(0,0,W,H);
  x.fillStyle='#2B1B14';x.fillRect(0,0,W,130);
+ const lg=await new Promise(r=>{const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src='logo.png'});
+ if(lg){const sz=104,ar=lg.width/lg.height;x.drawImage(lg,W-40-sz*ar,13,sz*ar,sz)}
  x.fillStyle='#fff';x.font=F(800,34);x.fillText(v('school_name'),40,60);
  x.fillStyle='#E9DFC9';x.font=F(500,20);x.fillText(v('address')+' · '+v('phone'),40,98);
  x.fillStyle='#1F3D2B';x.font=F(800,30);x.fillText(stu?'FEE REMINDER · फीस रिमाइंडर':'SALARY STATEMENT · वेतन विवरण',40,190);
