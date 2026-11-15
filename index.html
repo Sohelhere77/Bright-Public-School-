@@ -85,6 +85,12 @@ footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--mut);fon
 #panelView .msg{color:var(--red)}#panelView .ok{color:var(--neon);font-weight:600}
 #panelView .att label{display:inline;margin-right:10px;white-space:nowrap;color:var(--ink)}#panelView .att input{width:auto;margin:0 3px 0 0}
 #panelView .wrap{overflow-x:auto}
+#pback{margin-bottom:12px}
+.bigs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.bigf{background:var(--surface2);border:1px solid var(--neon);border-radius:12px;padding:16px 10px;color:var(--ink);font:700 22px var(--f);letter-spacing:.05em;text-transform:uppercase;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bigf span{font-size:34px;line-height:1}
+#panelView .shg button{background:var(--surface2);border:1px solid var(--line);color:var(--ink);text-align:left;display:flex;gap:10px;align-items:center;padding:14px;font:600 16px 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif;border-radius:8px}
+#panelView .shg button:hover{border-color:var(--neon)}
 </style>
 </head>
 <body>
@@ -118,7 +124,7 @@ footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--mut);fon
 <p><b data-i="tm_l"></b><br><span data-s="hours"></span></p></div></section>
 </main>
 <footer><div class="w">© 2026 <span data-n></span> · CBSE · <a class="adm" href="#" id="fl">Staff login</a></div></footer></div>
-<div id="panelView" hidden><div class="w"><h2 id="ptitle"></h2><p class="mut" id="pwho" style="margin:0 0 14px"></p><div id="pmain"></div></div></div>
+<div id="panelView" hidden><div class="w"><button id="pback" hidden>← Back</button><h2 id="ptitle"></h2><p class="mut" id="pwho" style="margin:0 0 14px"></p><div id="pmain"></div></div></div>
 <nav id="bar"><button id="bHome" class="on"><span>🏠</span><i style="font-style:normal" data-i="nav_home"></i></button><button id="bExp"><span>🧭</span><i style="font-style:normal" data-i="nav_exp"></i></button><button id="bMenu"><span>🔐</span>Staff login</button></nav>
 <div id="sheet" hidden><div class="sh" id="shBody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -167,7 +173,15 @@ const POSTS=["Principal","Vice Principal","Teacher","Clerk","Peon","Driver","Oth
 const ACC={admin:"Full control (Admin)",teacher:"Teacher (students, attendance, notices)",staff:"Basic (sirf notices dekhna)"};
 const isAdm=()=>ME&&(ME.access==='owner'||ME.access==='admin');
 const lvl=t=>ME.access==='owner'?'edit':((t==='student'?ME.fees_access:ME.salary_access)||'none');
-const allowed=k=>{if(k==='fees')return lvl('student')!=='none';if(k==='salary')return lvl('employee')!=='none';return isAdm()||(ME.access==='teacher'?['students','sa','notices'].includes(k):k==='notices')};
+const isTeach=()=>isAdm()||ME.access==='teacher';
+const allowed=k=>{
+ if(k==='fees')return lvl('student')!=='none';
+ if(k==='salary')return lvl('employee')!=='none';
+ if(k==='staffhub'||k==='teachers')return isAdm()||lvl('employee')!=='none';
+ if(k==='students')return isTeach()||lvl('student')!=='none';
+ if(k==='sa')return isTeach();
+ return isAdm()||k==='notices';
+};
 async function fn(body){
  const {data,error}=await sb.functions.invoke('staff-admin',{body});
  if(error)throw new Error(error.message);
@@ -179,20 +193,21 @@ const EMP_F=[['name','Name'],['post','Post','opt:Teacher|Principal|Vice Principa
 const TABS={
  site:{label:'Website edit',run:siteTab},
  staff:{label:'Staff / Login',run:staffTab},
- students:{label:'Students / छात्र',run:()=>crud('students',STU_F,['class','roll','name','father_name','phone'],'class',false,!isAdm(),'student')},
+ students:{label:'Students / छात्र',run:studentsHub},
  sa:{label:'Student attendance',run:()=>attendance('students','student_attendance','student_id',true)},
  ta:{label:'Teacher attendance',run:()=>attendance('teachers','teacher_attendance','teacher_id',false)},
- teachers:{label:'Teachers & Staff / कर्मचारी',run:()=>crud('teachers',EMP_F,['photo_url','name','post','subject','phone'],'created_at',false,false,'employee')},
+ teachers:{label:'Teachers & Staff / कर्मचारी',run:()=>crud('teachers',EMP_F,['photo_url','name','post','subject','phone'],'created_at',false,!isAdm(),'employee')},
  notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true,ME.access==='staff')},
+ staffhub:{label:'Staff / कर्मचारी',run:staffHub},
  fees:{label:'Fees / फीस',run:()=>mgmtList('student')},
  salary:{label:'Salary / वेतन',run:()=>mgmtList('employee')},
  gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photos (ek saath kai chun sakte hain)','photos'],['caption','Caption (optional)']],['url','caption'],'created_at',true)}
 };
 
-const ICON={fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
+const ICON={staffhub:'👥',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
 const setBar=a=>{$('bHome').classList.toggle('on',a==='home');$('bMenu').classList.toggle('on',a==='panel')};
 function showSite(){$('site').hidden=false;$('panelView').hidden=true;$('sheet').hidden=true;setBar('home');window.scrollTo(0,0)}
-function showPanel(){$('site').hidden=true;$('panelView').hidden=false;$('sheet').hidden=true;setBar('panel');window.scrollTo(0,0)}
+function showPanel(){$('site').hidden=true;$('panelView').hidden=false;$('sheet').hidden=true;setBar('panel');window.scrollTo(0,0);navBack=null;$('pback').hidden=true}
 const barLabel=()=>{$('bMenu').innerHTML=ME?'<span>🎮</span>Panel':'<span>🔐</span>Staff login'};
 async function loadMe(){
  if(!sb)return false;
@@ -212,21 +227,23 @@ function showLogin(){
   if(await loadMe())goFirst();
  };
 }
-let lastTab='';
-function openTab(k){lastTab=k;
- showPanel();$('ptitle').textContent=TABS[k].label;
+let lastTab='',navBack=null,backTo=null;
+function openTab(k,bk){
+ lastTab=k;showPanel();navBack=bk||null;$('pback').hidden=!navBack;
+ $('ptitle').textContent=TABS[k].label;
  $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='owner'?' (Owner)':'');
  TABS[k].run();
 }
-const goFirst=()=>openTab(Object.keys(TABS).filter(allowed)[0]);
+const goFirst=()=>{const ks=Object.keys(TABS).filter(allowed);openTab(ks.includes('students')?'students':ks[0])};
 const foldersHTML=(groups)=>groups.map(g=>`<details class="fold" open><summary>${g[0]}</summary><div class="shg">${g[1]}</div></details>`).join('');
 const GROUPS=[['📁 Management',['fees','salary']],['📁 People',['students','teachers','staff']],['📁 Attendance',['sa','ta']],['📁 Website',['site','notices','gallery']]];
 function openSheet(){
- const keys=Object.keys(TABS).filter(allowed);
+ const big=(k,ic,l)=>allowed(k)?`<button class="bigf" data-k="${k}"><span>${ic}</span>${l}</button>`:'';
  const btn=k=>`<button data-k="${k}"><span>${ICON[k]}</span>${TABS[k].label}</button>`;
- const gs=GROUPS.map(([n,ks])=>[n,ks.filter(k=>keys.includes(k)).map(btn).join('')]).filter(g=>g[1]);
+ const web=['site','notices','gallery'].filter(allowed).map(btn).join('');
+ const gs=[];if(web)gs.push(['📁 Website',web]);
  gs.push(['📁 Account','<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button>']);
- $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p>`+foldersHTML(gs);
+ $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p><div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}</div>`+foldersHTML(gs);
  $('sheet').hidden=false;
 }
 function openExplore(){
@@ -355,7 +372,7 @@ async function crud(table,fields,cols,order,desc,ro,prof){
  $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}${act?'<th></th>':''}</tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${cell(r,c)}</td>`).join('')}${act?`<td>${prof?`<button class="g" data-p="${r.id}">Profile</button> `:''}${ro?'':`<button class="r" data-id="${r.id}">Delete</button>`}</td>`:''}</tr>`).join('')}</table>`;
  $('lst').onclick=async e=>{
   const d=e.target.dataset;
-  if(d.p){profile(prof,d.p);return}
+  if(d.p){const nb=navBack,tt=$('ptitle').textContent;backTo=()=>{setView(tt,nb);crud(table,fields,cols,order,desc,ro,prof)};profile(prof,d.p);return}
   if(ro||!d.id)return;
   if(confirm('Delete karein?')){
    const r=data.find(x=>x.id===d.id);const u=(r&&(r.url||r.photo_url))||'';const i=u.indexOf('/photos/');
@@ -363,9 +380,10 @@ async function crud(table,fields,cols,order,desc,ro,prof){
    await sb.from(table).delete().eq('id',d.id);crud(table,fields,cols,order,desc,ro,prof)}
  };
 }
-async function attendance(list,att,idCol,byClass){
+async function attendance(list,att,idCol,byClass,pre){
  const m=$('pmain');
  m.innerHTML=`<div class="f">${byClass?`<label>Class<select id="cl">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:''}<label>Date<input id="dt" type="date" value="${today()}"></label></div><div class="wrap" id="lst"></div><button id="sv" hidden>Save attendance</button> <span id="e"></span>`;
+ if(pre&&byClass)$('cl').value=pre;
  const load=async()=>{
   let q=sb.from(list).select('*').order(byClass?'roll':'name');if(byClass)q=q.eq('class',$('cl').value);
   const [{data:people},{data:rec}]=await Promise.all([q,sb.from(att).select('*').eq('date',$('dt').value)]);
@@ -378,6 +396,85 @@ async function attendance(list,att,idCol,byClass){
  m.querySelectorAll('select,input').forEach(x=>x.onchange=load);load();
 }
 
+/* ---------- Students hub (class-wise) / Staff hub / Study tracker ---------- */
+const classLabel=c=>/^\d+$/.test(c)?'Class '+c:c;
+const SUBJ=['General','Hindi','English','Maths','EVS / Science','GK','Computer','Drawing','Rhymes / Oral','Behaviour'];
+const LVC={excellent:['Excellent','#3DDC97'],good:['Good','#7FD1FF'],average:['Average','#F5B700'],weak:['Weak','#FF6B6B']};
+const lvBadge=l=>l&&LVC[l]?`<span style="border:1px solid ${LVC[l][1]};color:${LVC[l][1]};padding:1px 8px;border-radius:10px;font-size:13px;white-space:nowrap">${LVC[l][0]}</span>`:'<span class="mut">-</span>';
+const maskA=a=>a?'XXXX XXXX '+a.slice(-4):'';
+const fmtA=a=>a.replace(/(\d{4})(?=\d)/g,'$1 ');
+function setView(title,back){
+ showPanel();navBack=back||null;$('pback').hidden=!navBack;
+ $('ptitle').textContent=title;
+ $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='owner'?' (Owner)':'');
+}
+$('pback').onclick=()=>{if(navBack)navBack()};
+const hubGo=(k,bk)=>{if(k==='add')addStudentView();else openTab(k,bk)};
+
+async function studentsHub(){
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const [sr,tr]=await Promise.all([sb.from('students').select('id,class'),isTeach()?sb.rpc('tracker_summary'):Promise.resolve({data:[]})]);
+ if(sr.error){pm.innerHTML=`<p class="msg">${esc(sr.error.message)}</p>`;return}
+ const T2=Object.fromEntries((tr.data||[]).map(r=>[r.sid,r]));
+ const cnt={},weak={};
+ (sr.data||[]).forEach(s=>{cnt[s.class]=(cnt[s.class]||0)+1;if((T2[s.id]||{}).last_level==='weak')weak[s.class]=(weak[s.class]||0)+1});
+ const top=[isAdm()?['add','➕','Add student']:null,isTeach()?['sa','✅','Attendance']:null,lvl('student')!=='none'?['fees','💰','Fees (sab classes)']:null].filter(Boolean);
+ pm.innerHTML=`<div class="shg" id="hub">${top.map(([k,ic,l])=>`<button data-hk="${k}"><span>${ic}</span>${l}</button>`).join('')}</div><h3>📁 Classes</h3><div class="shg" id="cls">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}<br><small class="mut">${cnt[c]||0} students${weak[c]?' · ⚠ '+weak[c]+' weak':''}</small></span></button>`).join('')}</div><p class="mut"><small>Class kholkar students, study tracker, attendance aur fees dekhein.</small></p>`;
+ $('hub').onclick=e=>{const b=e.target.closest('button');if(b)hubGo(b.dataset.hk,()=>openTab('students'))};
+ $('cls').onclick=e=>{const b=e.target.closest('button');if(b)classPage(b.dataset.c)};
+}
+
+async function classPage(cls){
+ setView(classLabel(cls),()=>openTab('students'));
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const seeFees=lvl('student')!=='none',tch=isTeach();
+ const none=Promise.resolve({data:[]});
+ const [sr,tr,br]=await Promise.all([sb.from('students').select('*').eq('class',cls).order('roll',{ascending:true,nullsFirst:false}),tch?sb.rpc('tracker_summary'):none,seeFees?sb.rpc('balances',{t:'student'}):none]);
+ if(sr.error){pm.innerHTML=`<p class="msg">${esc(sr.error.message)}</p>`;return}
+ const T2=Object.fromEntries((tr.data||[]).map(r=>[r.sid,r])),B=Object.fromEntries((br.data||[]).map(b=>[b.pid,b]));
+ const rows=sr.data.map(s=>{const t=T2[s.id]||{},b=B[s.id]||{};return {s,t,due:(+b.charged||0)-(+b.paid||0)-(+b.discounted||0)}});
+ const cn=l=>rows.filter(r=>r.t.last_level===l).length;
+ pm.innerHTML=`<div class="shg" id="cact">${isAdm()?'<button data-a="add"><span>➕</span>Add student</button>':''}${tch?'<button data-a="att"><span>✅</span>Attendance</button>':''}${seeFees?'<button data-a="fee"><span>💰</span>Fees</button>':''}</div><p class="mut" style="margin:10px 0">${rows.length} students${tch?` · 🟢 ${cn('excellent')+cn('good')} · 🟡 ${cn('average')} · 🔴 ${cn('weak')}`:''}</p><div class="f"><label>Search<input id="cq" placeholder="Naam"></label>${tch?`<label>Study level<select id="cf"><option value="">Sab</option><option value="weak">Weak (dhyan dein)</option><option value="average">Average</option><option value="good">Good</option><option value="excellent">Excellent</option><option value="none">Tracker nahi bhara</option></select></label>`:''}</div><div class="wrap" id="cl2"></div>`;
+ const draw=()=>{
+  const q=$('cq').value.trim().toLowerCase(),f=tch?$('cf').value:'';
+  const list=rows.filter(r=>(!q||String(r.s.name).toLowerCase().includes(q))&&(!f||(f==='none'?!r.t.last_level:r.t.last_level===f)));
+  $('cl2').innerHTML=`<table><tr><th>Roll</th><th>Name</th>${tch?'<th>Study</th>':''}${seeFees?'<th>Baki</th>':''}<th></th></tr>${list.map(r=>`<tr><td>${esc(r.s.roll)}</td><td>${esc(r.s.name)}${r.t.avg_score!=null?`<br><small class="mut">Avg ${r.t.avg_score}%</small>`:''}</td>${tch?`<td>${lvBadge(r.t.last_level)}</td>`:''}${seeFees?`<td style="color:${r.due>0?'var(--red)':'var(--neon)'}">${money(r.due)}</td>`:''}<td><button class="g" data-p="${r.s.id}">Profile</button></td></tr>`).join('')}</table>`;
+ };
+ pm.querySelectorAll('select,input').forEach(x=>x.oninput=draw);draw();
+ $('cl2').onclick=e=>{const id=e.target.dataset.p;if(id){backTo=()=>classPage(cls);profile('student',id)}};
+ $('cact').onclick=e=>{
+  const b=e.target.closest('button');if(!b)return;const a=b.dataset.a,back=()=>classPage(cls);
+  if(a==='add')addStudentView(cls);
+  else if(a==='att'){setView('Attendance · '+classLabel(cls),back);attendance('students','student_attendance','student_id',true,cls)}
+  else if(a==='fee'){setView('Fees · '+classLabel(cls),back);mgmtList('student',cls)}
+ };
+}
+
+function addStudentView(cls){
+ setView('Add student',()=>cls?classPage(cls):openTab('students'));
+ $('pmain').innerHTML=`<div class="f">${STU_F.map(f=>inp(f,'a_')).join('')}</div><label>Aadhaar number (optional · sirf Admin ko dikhega)<input id="a_aad" inputmode="numeric" maxlength="14" placeholder="1234 5678 9012"></label><button id="asv">Add student</button> <span class="msg" id="e"></span>`;
+ if(cls)$('a_class').value=cls;
+ $('asv').onclick=async()=>{
+  const msg=$('e');msg.textContent='';
+  try{
+   const o={};for(const [k,,t] of STU_F){const val=$('a_'+k).value.trim();if(val)o[k]=t==='number'?+val:val}
+   if(!o.name)throw new Error('Naam daalein');
+   const aad=$('a_aad').value.replace(/\s/g,'');
+   if(aad&&!/^\d{12}$/.test(aad))throw new Error('Aadhaar 12 ank ka hona chahiye');
+   const {data,error}=await sb.from('students').insert(o).select('id').single();
+   if(error)throw error;
+   if(aad){const r=await sb.from('student_private').insert({student_id:data.id,aadhaar:aad});if(r.error)throw new Error('Student add ho gaya, par Aadhaar save nahi hua: '+r.error.message)}
+   classPage(o.class);
+  }catch(x){msg.textContent=x.message}
+ };
+}
+
+function staffHub(){
+ const t=(k,ic,l)=>allowed(k)?`<button data-hk="${k}"><span>${ic}</span>${l}</button>`:'';
+ $('pmain').innerHTML=`<div class="shg" id="hub">${t('teachers','👩‍🏫','Teachers & Staff members')}${t('staff','🔑','Staff logins & access')}${t('ta','🧑‍🏫','Teacher attendance')}${t('salary','💼','Salary')}</div><p class="mut"><small>Teachers & Staff members: sabki list, profile aur website par dikhana. Staff logins: kisko panel mein kitna access hai.</small></p>`;
+ $('hub').onclick=e=>{const b=e.target.closest('button');if(b)openTab(b.dataset.hk,()=>openTab('staffhub'))};
+}
+
 /* ---------- Management: fees & salary ---------- */
 const money=n=>'₹ '+Number(n||0).toLocaleString('en-IN');
 const fmt=d=>d?String(d).slice(0,10).split('-').reverse().join('-'):'';
@@ -385,7 +482,7 @@ const mlabel=d=>d?new Date(String(d).slice(0,7)+'-01T00:00:00').toLocaleDateStri
 const monthStart=()=>today().slice(0,7)+'-01';
 const lastDayText=()=>{const n=new Date();return new Date(n.getFullYear(),n.getMonth()+1,0).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})};
 
-async function mgmtList(type){
+async function mgmtList(type,pre){
  const stu=type==='student';
  $('pmain').innerHTML='<p class="mut">Loading...</p>';
  await sb.rpc('run_accrual');
@@ -400,22 +497,27 @@ async function mgmtList(type){
   const list=rows.filter(r=>(!c||r.p.class===c)&&(!q||String(r.p.name).toLowerCase().includes(q))&&(o==='all'||r.due>0)).sort((a,b)=>b.due-a.due);
   $('ml').innerHTML=`<table><tr><th>Name</th><th>Monthly</th><th>Mode</th><th>Baki</th><th></th></tr>${list.map(r=>`<tr><td>${esc(r.p.name)}<br><small class="mut">${stu?esc(r.p.class)+(r.p.roll?' · Roll '+esc(r.p.roll):''):esc(r.p.post||'')}</small></td><td>${r.monthly?money(r.monthly):'-'}</td><td>${r.mode?(r.mode==='auto'?'Auto':'Manual'):'Set nahi'}</td><td style="color:${r.due>0?'var(--red)':'var(--neon)'};font-weight:600">${money(r.due)}</td><td><button data-o="${r.p.id}">Open</button></td></tr>`).join('')}</table>`;
  };
+ if(pre&&stu&&$('mc'))$('mc').value=pre;
  $('pmain').querySelectorAll('select,input').forEach(x=>x.oninput=draw);draw();
- $('ml').onclick=e=>{const id=e.target.dataset.o;if(id)profile(type,id)};
+ $('ml').onclick=e=>{const id=e.target.dataset.o;if(!id)return;const nb=navBack,tt=$('ptitle').textContent,cur=stu?$('mc').value:'';backTo=()=>{setView(tt,nb);mgmtList(type,cur)};profile(type,id)};
 }
 
 async function profile(type,id){
  const stu=type==='student',lv=lvl(type),see=lv!=='none',ed=lv==='edit',FL=stu?STU_F:EMP_F;
+ const bk=backTo||(()=>openTab(lastTab));backTo=null;
  $('pmain').innerHTML='<p class="mut">Loading...</p>';
  if(see)await sb.rpc('run_accrual');
  const {data:p}=await sb.from(stu?'students':'teachers').select('*').eq('id',id).maybeSingle();
  if(!p){$('pmain').innerHTML='<p class="msg">Profile nahi mili</p>';return}
- $('ptitle').textContent=p.name;
+ setView(p.name,bk);
  let acc=null,led=[];
  if(see){
   const [a,l]=await Promise.all([sb.from('accounts').select('*').eq('person_type',type).eq('person_id',id).maybeSingle(),sb.from('ledger').select('*').eq('person_type',type).eq('person_id',id).order('month',{ascending:true,nullsFirst:true}).order('created_at')]);
   acc=a.data;led=l.data||[];
  }
+ let aad=null,trk=[];
+ if(stu&&isAdm()){const {data:pv}=await sb.from('student_private').select('aadhaar').eq('student_id',id).maybeSingle();aad=pv?pv.aadhaar:null}
+ if(stu&&isTeach()){const {data:tk}=await sb.from('study_tracker').select('*').eq('student_id',id).order('on_date',{ascending:false}).order('created_at',{ascending:false}).limit(200);trk=tk||[]}
  const sum=k=>led.filter(x=>x.kind===k).reduce((s,x)=>s+ +x.amount,0);
  const due=sum('charge')-sum('payment')-sum('discount');
  let pool=sum('payment')+sum('discount');const pending=[];
@@ -424,8 +526,13 @@ async function profile(type,id){
  const mode=acc?acc.mode:'auto',amt=acc?acc.monthly_amount:0,smv=(acc&&acc.start_month?acc.start_month:monthStart()).slice(0,7);
  const card='background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0';
  const details=FL.filter(f=>f[2]!=='photo').map(([k,l])=>`<tr><th>${esc(l.split(' (')[0].split(' /')[0])}</th><td>${esc(p[k])}</td></tr>`).join('');
- let h=`<button id="pbk">← Back</button>`;
+ let h='';
  h+=`<div style="${card}">${p.photo_url?`<img src="${esc(p.photo_url)}" alt="" style="height:90px;border-radius:8px;margin-bottom:8px"><br>`:''}<table>${details}</table>${isAdm()?`<p><button class="g" id="ped">Edit details</button></p><div id="pedit" hidden>${FL.map(f=>inp(f,'p_')).join('')}<button id="psv">Save details</button> <span id="pem" class="msg"></span></div>`:''}</div>`;
+ if(stu&&isAdm())h+=`<div style="${card}"><b>🪪 Aadhaar number</b> <small class="mut">(sirf Admin ko dikhta hai)</small><p id="aadtxt" style="font:700 20px var(--f);letter-spacing:.08em;margin:8px 0">${aad?maskA(aad):'— abhi daala nahi —'}</p>${aad?'<p><button id="aadshow">👁 Dikhayein</button></p>':''}<label>${aad?'Naya number (badalne ke liye)':'Aadhaar number (12 ank)'}<input id="aadin" inputmode="numeric" maxlength="14" placeholder="1234 5678 9012"></label><button id="aadsave">Save Aadhaar</button> <span id="aadm" class="msg"></span></div>`;
+ if(stu&&isTeach()){
+  const sc=trk.filter(x=>x.score!=null).map(x=>+x.score),avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length*10)/10:null,lastL=(trk.find(x=>x.level)||{}).level;
+  h+=`<div style="${card}"><b>📈 Study Tracker</b><div style="margin:8px 0">${lvBadge(lastL)} <span class="mut">${trk.length} entries${avg!=null?' · Average '+avg+'%':''}</span></div>${avg!=null?`<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="width:${Math.min(avg,100)}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--neon))"></div></div>`:''}<div class="f" style="margin-top:12px"><label>Subject<select id="tsub">${SUBJ.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Marks % (optional)<input id="tsc" type="number" min="0" max="100"></label><label>Kaisa padh raha hai<select id="tlv"><option value="">—</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="weak">Weak (extra dhyan chahiye)</option></select></label><label>Date<input id="tdt" type="date" value="${today()}"></label></div><label>Note (kya achha hai, kya kami hai, aage kya karna hai)<textarea id="tnt" rows="3"></textarea></label><button id="tadd">Add to tracker</button> <span id="tem" class="msg"></span><div class="wrap" id="tlist" style="margin-top:12px">${trk.length?`<table><tr><th>Date</th><th>Subject</th><th>Marks</th><th>Level</th><th>Note</th><th></th></tr>${trk.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.subject)}</td><td>${x.score!=null?x.score+'%':''}</td><td>${lvBadge(x.level)}</td><td>${esc(x.note)}</td><td><button class="r" data-td="${x.id}">Delete</button></td></tr>`).join('')}</table>`:'<p class="mut">Abhi koi entry nahi.</p>'}</div></div>`;
+ }
  if(see){
   h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'var(--red)':'var(--neon)'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
   if(pending.length)h+=`<p style="margin:10px 0 0"><b>Pending:</b></p><table>${pending.map(r=>`<tr><td>${esc(r.label)}</td><td>${money(r.amt)}</td></tr>`).join('')}</table>`;
@@ -437,7 +544,24 @@ async function profile(type,id){
   h+=`<h3>Hisaab (ledger)</h3><div class="wrap" id="pled"><table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Note</th>${ed?'<th></th>':''}</tr>${[...led].reverse().map(r=>`<tr><td>${r.auto?mlabel(r.month):fmt(r.paid_on||r.created_at)}</td><td>${LB[r.kind]}</td><td>${r.kind==='payment'?'−':(r.kind==='discount'?'−':'+')} ${money(r.amount)}</td><td>${esc(r.note||'')}${r.auto?' <small class="mut">(auto)</small>':''}</td>${ed?`<td>${r.auto?'':`<button class="r" data-del="${r.id}">Delete</button>`}</td>`:''}</tr>`).join('')}</table></div>`;
  }
  $('pmain').innerHTML=h;
- $('pbk').onclick=()=>openTab(lastTab);
+ if(stu&&isTeach()){
+  $('tadd').onclick=async()=>{
+   const lvv=$('tlv').value,scv=$('tsc').value,nt=$('tnt').value.trim();
+   if(!lvv&&scv===''&&!nt){$('tem').textContent='Level, marks ya note mein se kuch bharein';return}
+   const {error}=await sb.from('study_tracker').insert({student_id:id,on_date:$('tdt').value||today(),subject:$('tsub').value,score:scv===''?null:+scv,level:lvv||null,note:nt||null});
+   if(error)$('tem').textContent=error.message;else profile(type,id);
+  };
+  $('tlist').onclick=async e=>{const d=e.target.dataset.td;if(d&&confirm('Ye entry hata dein?')){const {error}=await sb.from('study_tracker').delete().eq('id',d);if(error)alert(error.message);else profile(type,id)}};
+ }
+ if(stu&&isAdm()){
+  if(aad)$('aadshow').onclick=()=>{const t=$('aadtxt'),on=t.dataset.s==='1';t.textContent=on?maskA(aad):fmtA(aad);t.dataset.s=on?'0':'1';$('aadshow').textContent=on?'👁 Dikhayein':'🙈 Chhupayein'};
+  $('aadsave').onclick=async()=>{
+   const n=$('aadin').value.replace(/\s/g,'');
+   if(!/^\d{12}$/.test(n)){$('aadm').textContent='12 ank ka sahi Aadhaar number daalein';return}
+   const {error}=await sb.from('student_private').upsert({student_id:id,aadhaar:n,updated_at:new Date().toISOString()},{onConflict:'student_id'});
+   if(error)$('aadm').textContent=error.message;else profile(type,id);
+  };
+ }
  if(isAdm()){
   FL.forEach(([k,,t])=>{const el=$('p_'+k);if(el&&t!=='photo')el.value=p[k]==null?'':String(p[k])});
   $('ped').onclick=()=>{$('pedit').hidden=!$('pedit').hidden};
