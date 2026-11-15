@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bright Public School, Rajmahal</title>
+<title>Bright Public School</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;800&family=Noto+Sans+Devanagari:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
 :root{--brown:#2B1B14;--green:#1F3D2B;--sand:#E9DFC9;--gold:#C9A24B;--bg:#FAF8F4;--ink:#2B1B14;--mut:#6B5B50;--line:#E3DACB;--f:'Plus Jakarta Sans','Noto Sans Devanagari',sans-serif}
@@ -38,50 +38,68 @@ a.adm{color:var(--gold)}
 </head>
 <body>
 <header><div class="w">
-<a class="logo" href="#top">Bright Public School</a>
+<a class="logo" href="#top" data-n></a>
 <nav><a href="#admission" data-i="nav_adm"></a><a href="#fees" data-i="nav_fee"></a><a href="#teachers" data-i="nav_tch"></a><a href="#gallery" data-i="nav_gal"></a><a href="#notices" data-i="nav_not"></a><a href="#contact" data-i="nav_con"></a></nav>
 <button id="lang">English</button>
 </div></header>
 <main id="top">
 <div class="hero"><div class="w">
-<h1 data-i="h1"></h1><p data-i="sub"></p><a class="btn" href="#admission" data-i="apply"></a>
+<h1 data-s="h1"></h1><p data-s="sub"></p><a class="btn" href="#admission" data-i="apply"></a>
 </div></div>
 <section id="admission"><div class="w"><h2 data-i="nav_adm"></h2>
-<p data-i="adm_p" class="mut"></p>
-<ul><li data-i="d1"></li><li data-i="d2"></li><li data-i="d3"></li><li data-i="d4"></li></ul></div></section>
+<p data-s="adm_p" class="mut"></p><ul id="docs"></ul></div></section>
 <section id="fees" class="alt"><div class="w"><h2 data-i="nav_fee"></h2>
-<table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr>
-<tr><td>Nursery – UKG</td><td>₹ 000</td><td>₹ 000</td></tr>
-<tr><td>Class 1 – 5</td><td>₹ 000</td><td>₹ 000</td></tr></table>
-<p class="mut" data-i="fee_note"></p></div></section>
+<table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr><tbody id="feerows"></tbody></table>
+<p class="mut" data-s="fee_note"></p></div></section>
 <section id="teachers"><div class="w"><h2 data-i="nav_tch"></h2><div class="grid" id="tch"></div></div></section>
 <section id="gallery" class="alt"><div class="w"><h2 data-i="nav_gal"></h2><div class="gal" id="gal"></div></div></section>
 <section id="notices"><div class="w"><h2 data-i="nav_not"></h2><div id="not"></div></div></section>
 <section id="contact" class="alt"><div class="w"><h2 data-i="nav_con"></h2>
-<p><b data-i="addr_l"></b><br>Koilabazar, Rajmahal, Jharkhand</p>
-<p><b data-i="ph_l"></b><br><a href="tel:+910000000000">+91 00000 00000</a></p>
-<p><b data-i="tm_l"></b><br><span data-i="tm"></span></p></div></section>
+<p><b data-i="addr_l"></b><br><span id="addr"></span></p>
+<p><b data-i="ph_l"></b><br><a id="ph"></a></p>
+<p id="emp" hidden><b>Email</b><br><a id="em"></a></p>
+<p><b data-i="tm_l"></b><br><span data-s="hours"></span></p></div></section>
 </main>
-<footer><div class="w">© 2026 Bright Public School · CBSE · <a class="adm" href="admin.html">Staff login</a></div></footer>
+<footer><div class="w">© 2026 <span data-n></span> · CBSE · <a class="adm" href="admin.html">Staff login</a></div></footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+<script src="defaults.js"></script>
 <script>
-const T={hi:{nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",h1:"हर बच्चे की पहचान, हर बच्चे का भविष्य।",sub:"नर्सरी से कक्षा 5 तक CBSE शिक्षा। कोइलाबाज़ार, राजमहल।",apply:"प्रवेश के लिए आवेदन",adm_p:"नया सत्र के लिए प्रवेश खुले हैं। कृपया ये दस्तावेज़ लेकर स्कूल ऑफिस आएं:",d1:"बच्चे का जन्म प्रमाण पत्र",d2:"पिछली कक्षा की रिपोर्ट कार्ड",d3:"4 फोटो",d4:"पते का प्रमाण",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",fee_note:"सही शुल्क के लिए स्कूल ऑफिस से संपर्क करें।",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",tm:"सोमवार से शनिवार, सुबह 8 से दोपहर 2 बजे",none:"अभी कुछ नहीं है।",lng:"English"},
-en:{nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",h1:"Every child known. Every future bright.",sub:"CBSE education from Nursery to Class 5 at Koilabazar, Rajmahal.",apply:"Apply for admission",adm_p:"Admissions are open for the new session. Please bring these documents to the school office:",d1:"Child's birth certificate",d2:"Previous class report card",d3:"4 photographs",d4:"Address proof",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",fee_note:"Please contact the school office for exact fees.",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",tm:"Monday to Saturday, 8:00 am to 2:00 pm",none:"Nothing here yet.",lng:"हिन्दी"}};
-let L=localStorage.getItem('lang')||'hi';
+const T={hi:{nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",apply:"प्रवेश के लिए आवेदन",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",none:"अभी कुछ नहीं है।",lng:"English"},
+en:{nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Apply for admission",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",none:"Nothing here yet.",lng:"हिन्दी"}};
+let L=localStorage.getItem('lang')||'hi',S={},D={};
+const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-function apply(){document.documentElement.lang=L;document.querySelectorAll('[data-i]').forEach(e=>e.textContent=T[L][e.dataset.i]);document.getElementById('lang').textContent=T[L].lng;}
-document.getElementById('lang').onclick=()=>{L=L==='hi'?'en':'hi';localStorage.setItem('lang',L);apply();load();};
+const v=k=>(S[k]!=null&&S[k]!=='')?S[k]:DEF[k];
+const lv=k=>v(k+'_'+L);
+const lines=s=>String(s||'').split('\n').filter(x=>x.trim());
+function paint(){
+ document.documentElement.lang=L;
+ document.querySelectorAll('[data-i]').forEach(e=>e.textContent=T[L][e.dataset.i]);
+ document.querySelectorAll('[data-s]').forEach(e=>e.textContent=lv(e.dataset.s));
+ document.querySelectorAll('[data-n]').forEach(e=>e.textContent=v('school_name'));
+ document.title=v('school_name');
+ $('lang').textContent=T[L].lng;
+ $('docs').innerHTML=lines(lv('docs')).map(x=>`<li>${esc(x)}</li>`).join('');
+ $('feerows').innerHTML=lines(v('fees')).map(r=>{const c=r.split('|').map(s=>s.trim());return `<tr><td>${esc(c[0])}</td><td>${esc(c[1])}</td><td>${esc(c[2])}</td></tr>`}).join('');
+ $('addr').textContent=v('address');
+ const p=v('phone');$('ph').textContent=p;$('ph').href='tel:'+p.replace(/[^+\d]/g,'');
+ const e=v('email');$('emp').hidden=!e;$('em').textContent=e;$('em').href='mailto:'+e;
+ const none=`<p class="mut">${T[L].none}</p>`;
+ $('tch').innerHTML=(D.t||[]).map(x=>`<div class="card">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
+ $('gal').innerHTML=(D.g||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
+ $('not').innerHTML=(D.n||[]).map(x=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut">${esc(x.body)}</span></div>`).join('')||none;
+}
+$('lang').onclick=()=>{L=L==='hi'?'en':'hi';localStorage.setItem('lang',L);paint()};
 async function load(){
  if(CONFIG.url.includes('YOUR-'))return;
  const sb=supabase.createClient(CONFIG.url,CONFIG.key);
- const [t,g,n]=await Promise.all([sb.from('teachers').select('*').order('created_at'),sb.from('gallery').select('*').order('created_at',{ascending:false}),sb.from('notices').select('*').order('date',{ascending:false}).limit(10)]);
- const none=`<p class="mut">${T[L].none}</p>`;
- tch.innerHTML=(t.data||[]).map(x=>`<div class="card">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
- gal.innerHTML=(g.data||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
- not.innerHTML=(n.data||[]).map(x=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut">${esc(x.body)}</span></div>`).join('')||none;
+ const [t,g,n,s]=await Promise.all([sb.from('teachers').select('*').order('created_at'),sb.from('gallery').select('*').order('created_at',{ascending:false}),sb.from('notices').select('*').order('date',{ascending:false}).limit(10),sb.from('site_settings').select('*')]);
+ D={t:t.data,g:g.data,n:n.data};
+ S=Object.fromEntries((s.data||[]).map(r=>[r.key,r.value]));
+ paint();
 }
-apply();load();
+paint();load();
 </script>
 </body>
 </html>

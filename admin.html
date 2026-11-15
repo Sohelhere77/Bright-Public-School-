@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Admin · Bright Public School</title>
+<title>Staff Panel</title>
 <style>
 :root{--brown:#2B1B14;--green:#1F3D2B;--sand:#E9DFC9;--gold:#C9A24B;--line:#E3DACB}
 *{box-sizing:border-box}body{margin:0;background:#FAF8F4;color:var(--brown);font:16px/1.5 'Noto Sans Devanagari',system-ui,sans-serif}
-header{background:var(--brown);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-header b{font-size:16px}button,select,input,textarea{font:inherit}
+header{background:var(--brown);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+header b{font-size:16px}header small{color:var(--sand)}button,select,input,textarea{font:inherit}
 button{background:var(--green);color:#fff;border:0;border-radius:6px;padding:9px 14px;cursor:pointer}
 button.g{background:var(--gold);color:var(--brown)}button.r{background:#8B2E2E;padding:5px 9px;font-size:13px}
 .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 16px;background:var(--sand)}
@@ -17,56 +17,114 @@ button.g{background:var(--gold);color:var(--brown)}button.r{background:#8B2E2E;p
 main{padding:16px;max-width:900px;margin:0 auto}
 input,select,textarea{width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;background:#fff;margin:3px 0 10px}
 .f{display:grid;gap:0 12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+label{display:block;font-size:14px}
 table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}td,th{border:1px solid var(--line);padding:7px 8px;text-align:left}th{background:var(--sand)}
+td select{margin:0;padding:5px}td button{margin:2px 0}
 .box{max-width:340px;margin:60px auto;padding:20px;background:#fff;border:1px solid var(--line);border-radius:10px}
-.msg{color:#8B2E2E}.att label{margin-right:10px;white-space:nowrap}.att input{width:auto;margin:0 3px 0 0}
+.msg{color:#8B2E2E}.ok{color:var(--green);font-weight:600}.att label{display:inline;margin-right:10px;white-space:nowrap}.att input{width:auto;margin:0 3px 0 0}
 .wrap{overflow-x:auto}
 </style>
 </head>
 <body>
 <div id="login" class="box"><h2>Staff login</h2>
-<label>Email<input id="em" type="email" autocomplete="username"></label>
+<label>Gmail<input id="em" type="email" autocomplete="username"></label>
 <label>Password<input id="pw" type="password" autocomplete="current-password"></label>
-<button id="go">Login</button><p class="msg" id="lm"></p></div>
+<button id="go">Login</button><p class="msg" id="lm"></p>
+<p><small>Password bhool gaye? Admin se naya password banwayein.</small></p></div>
 <div id="app" hidden>
-<header><b>Bright Public School · Admin</b><span><span id="who"></span> <button class="g" id="out">Logout</button></span></header>
+<header><span><b id="sch">Staff Panel</b><br><small id="who"></small></span><span><button id="cp">Change password</button> <button class="g" id="out">Logout</button></span></header>
 <div class="tabs" id="tabs"></div><main id="main"></main></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
+<script src="defaults.js"></script>
 <script>
 const sb=supabase.createClient(CONFIG.url,CONFIG.key);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const today=()=>new Date().toISOString().slice(0,10);
+let ME=null;
+const POSTS=["Principal","Vice Principal","Teacher","Clerk","Peon","Driver","Other"];
+const ACC={admin:"Full control (Admin)",teacher:"Teacher (students, attendance, notices)",staff:"Basic (sirf notices dekhna)"};
+const isAdm=()=>ME&&(ME.access==='owner'||ME.access==='admin');
+const allowed=k=>isAdm()||(ME.access==='teacher'?['students','sa','notices'].includes(k):k==='notices');
+async function fn(body){
+ const {data,error}=await sb.functions.invoke('staff-admin',{body});
+ if(error)throw new Error(error.message);
+ if(data&&data.error)throw new Error(data.error);
+ return data;
+}
 const TABS={
- students:{label:'Students / छात्र',run:()=>crud('students',[['name','Name / नाम'],['class','Class / कक्षा','sel'],['roll','Roll no','number'],['father_name',"Father's name"],['mother_name',"Mother's name"],['phone','Phone'],['address','Address'],['dob','Date of birth','date']],['class','roll','name','father_name','phone'],'class')},
+ site:{label:'Website edit',run:siteTab},
+ staff:{label:'Staff / Login',run:staffTab},
+ students:{label:'Students / छात्र',run:()=>crud('students',[['name','Name / नाम'],['class','Class / कक्षा','sel'],['roll','Roll no','number'],['father_name',"Father's name"],['mother_name',"Mother's name"],['phone','Phone'],['address','Address'],['dob','Date of birth','date']],['class','roll','name','father_name','phone'],'class',false,!isAdm())},
  sa:{label:'Student attendance',run:()=>attendance('students','student_attendance','student_id',true)},
  ta:{label:'Teacher attendance',run:()=>attendance('teachers','teacher_attendance','teacher_id',false)},
  teachers:{label:'Teachers / शिक्षक',run:()=>crud('teachers',[['name','Name'],['subject','Subject'],['qualification','Qualification'],['photo_url','Photo link (URL)']],['name','subject','qualification'],'created_at')},
- notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true)},
+ notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true,ME.access==='staff')},
  gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photo link (URL)'],['caption','Caption']],['url','caption'],'created_at',true)}
 };
 async function start(){
  const {data:{session}}=await sb.auth.getSession();
  if(!session){$('login').hidden=false;$('app').hidden=true;return}
- const {data}=await sb.from('admins').select('role').eq('user_id',session.user.id).maybeSingle();
- if(!data){await sb.auth.signOut();$('lm').textContent='Aap Admin nahi hain.';$('login').hidden=false;return}
- $('login').hidden=true;$('app').hidden=false;$('who').textContent=data.role==='owner'?'Owner':'Admin';
- $('tabs').innerHTML=Object.keys(TABS).map(k=>`<button data-k="${k}">${TABS[k].label}</button>`).join('');
- $('tabs').onclick=e=>{const k=e.target.dataset.k;if(k)open(k)};open('students');
+ const {data}=await sb.from('staff').select('*').eq('user_id',session.user.id).maybeSingle();
+ if(!data){await sb.auth.signOut();$('lm').textContent='Aapka Gmail staff list mein nahi hai.';$('login').hidden=false;$('app').hidden=true;return}
+ ME=data;
+ $('login').hidden=true;$('app').hidden=false;
+ $('who').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='owner'?' (Owner)':'');
+ const keys=Object.keys(TABS).filter(allowed);
+ $('tabs').innerHTML=keys.map(k=>`<button data-k="${k}">${TABS[k].label}</button>`).join('');
+ $('tabs').onclick=e=>{const k=e.target.dataset.k;if(k)open(k)};
+ open(keys[0]);
 }
 function open(k){document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.k===k));TABS[k].run()}
-$('go').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('em').value.trim(),password:$('pw').value});if(error)$('lm').textContent=error.message;else start()};
+$('go').onclick=async()=>{const {error}=await sb.auth.signInWithPassword({email:$('em').value.trim().toLowerCase(),password:$('pw').value});if(error)$('lm').textContent=error.message;else start()};
 $('out').onclick=async()=>{await sb.auth.signOut();location.reload()};
+$('cp').onclick=async()=>{const p=prompt('Naya password (kam se kam 8 akshar)');if(!p)return;if(p.length<8){alert('Kam se kam 8 akshar rakhein');return}const {error}=await sb.auth.updateUser({password:p});alert(error?error.message:'Password badal gaya')};
 
-async function crud(table,fields,cols,order,desc){
+async function siteTab(){
+ const {data}=await sb.from('site_settings').select('*');
+ const S=Object.fromEntries((data||[]).map(r=>[r.key,r.value]));
+ $('main').innerHTML='<p>Yahan se website ka text badlein. Save karte hi website par badal jata hai.</p>'+SITE_FIELDS.map(([k,l,t])=>`<label>${l}${t==='area'?`<textarea id="s_${k}" rows="3"></textarea>`:`<input id="s_${k}">`}</label>`).join('')+'<button id="ssv">Save website</button> <span id="e"></span>';
+ SITE_FIELDS.forEach(([k])=>$('s_'+k).value=(S[k]!=null&&S[k]!=='')?S[k]:(DEF[k]||''));
+ $('ssv').onclick=async()=>{
+  const rows=SITE_FIELDS.map(([k])=>({key:k,value:$('s_'+k).value,updated_at:new Date().toISOString()}));
+  const {error}=await sb.from('site_settings').upsert(rows,{onConflict:'key'});
+  $('e').className=error?'msg':'ok';$('e').textContent=error?error.message:'Saved ✓ Ab website par dekhein';
+ };
+}
+const accOpts=(cur,isOwner)=>Object.entries(ACC).filter(([k])=>isOwner||k!=='admin'||cur==='admin').map(([k,l])=>`<option value="${k}" ${k===cur?'selected':''}>${l}</option>`).join('');
+async function staffTab(){
+ const isOwner=ME.access==='owner';
+ $('main').innerHTML=`<h3>Naya staff add karein</h3><div class="f"><label>Name<input id="sn"></label><label>Post<select id="sp">${POSTS.map(p=>`<option>${p}</option>`).join('')}</select></label><label>Gmail<input id="se" type="email"></label><label>Access<select id="sx">${accOpts('staff',isOwner)}</select></label><label>Temporary password (8+ akshar)<input id="spw"></label></div><button id="sadd">Add staff</button> <span id="e"></span><h3>Staff list</h3><div class="wrap" id="sl">Loading...</div>`;
+ $('sp').onchange=()=>{const p=$('sp').value;$('sx').value=((p==='Principal'||p==='Vice Principal')&&isOwner)?'admin':(p==='Teacher'?'teacher':'staff');if(!$('sx').value)$('sx').value='staff'};
+ $('sp').onchange();
+ $('sadd').onclick=async()=>{
+  $('e').className='msg';$('e').textContent='Please wait...';
+  try{await fn({action:'create',name:$('sn').value.trim(),post:$('sp').value,email:$('se').value,access:$('sx').value,password:$('spw').value});staffTab()}
+  catch(x){$('e').textContent=x.message}
+ };
+ const {data,error}=await sb.from('staff').select('*').order('created_at');
+ if(error){$('sl').textContent=error.message;return}
+ $('sl').innerHTML=`<table><tr><th>Name</th><th>Post</th><th>Gmail</th><th>Access</th><th></th></tr>${data.map(r=>{
+  const can=r.user_id!==ME.user_id&&r.access!=='owner'&&(isOwner||r.access!=='admin');
+  return `<tr><td>${esc(r.name)}</td><td>${esc(r.post)}</td><td>${esc(r.email)}</td><td>${can?`<select data-a="${r.user_id}">${accOpts(r.access,isOwner)}</select>`:esc(r.access)}</td><td>${can?`<button data-pw="${r.user_id}">Password</button> <button class="r" data-rm="${r.user_id}">Remove</button>${isOwner?` <button class="g" data-ow="${r.user_id}">Make Owner</button>`:''}`:''}</td></tr>`}).join('')}</table>`;
+ const run=async f=>{try{await f();staffTab()}catch(x){alert(x.message)}};
+ $('sl').onchange=e=>{const id=e.target.dataset.a;if(id)run(()=>fn({action:'update',user_id:id,access:e.target.value}))};
+ $('sl').onclick=e=>{const d=e.target.dataset;
+  if(d.pw){const p=prompt('Is staff ka naya password (8+ akshar)');if(p)run(()=>fn({action:'update',user_id:d.pw,password:p}))}
+  else if(d.rm){if(confirm('Is staff ka login hamesha ke liye hata dein?'))run(()=>fn({action:'remove',user_id:d.rm}))}
+  else if(d.ow){if(confirm('Ye staff Owner ban jayega aur aap Admin ban jayenge. Pakka?'))run(async()=>{await fn({action:'make_owner',user_id:d.ow});location.reload()})}
+ };
+}
+
+async function crud(table,fields,cols,order,desc,ro){
  const m=$('main');
- m.innerHTML=`<div class="f">${fields.map(([k,l,t])=>t==='sel'?`<label>${l}<select id="f_${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:`<label>${l}<input id="f_${k}" type="${t||'text'}"></label>`).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span><h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
- $('add').onclick=async()=>{const o={};fields.forEach(([k,,t])=>{const v=$('f_'+k).value.trim();if(v)o[k]=t==='number'?+v:v});const {error}=await sb.from(table).insert(o);if(error)$('e').textContent=error.message;else crud(table,fields,cols,order,desc)};
+ m.innerHTML=(ro?'':`<div class="f">${fields.map(([k,l,t])=>t==='sel'?`<label>${l}<select id="f_${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:`<label>${l}<input id="f_${k}" type="${t||'text'}"></label>`).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span>`)+`<h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
+ if(!ro)$('add').onclick=async()=>{const o={};fields.forEach(([k,,t])=>{const v=$('f_'+k).value.trim();if(v)o[k]=t==='number'?+v:v});const {error}=await sb.from(table).insert(o);if(error)$('e').textContent=error.message;else crud(table,fields,cols,order,desc,ro)};
  const {data,error}=await sb.from(table).select('*').order(order,{ascending:!desc});
  if(error){$('lst').textContent=error.message;return}
- $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}<th></th></tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}<td><button class="r" data-id="${r.id}">Delete</button></td></tr>`).join('')}</table>`;
- $('lst').onclick=async e=>{const id=e.target.dataset.id;if(id&&confirm('Delete karein?')){await sb.from(table).delete().eq('id',id);crud(table,fields,cols,order,desc)}};
+ $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}${ro?'':'<th></th>'}</tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${esc(r[c])}</td>`).join('')}${ro?'':`<td><button class="r" data-id="${r.id}">Delete</button></td>`}</tr>`).join('')}</table>`;
+ if(!ro)$('lst').onclick=async e=>{const id=e.target.dataset.id;if(id&&confirm('Delete karein?')){await sb.from(table).delete().eq('id',id);crud(table,fields,cols,order,desc,ro)}};
 }
 async function attendance(list,att,idCol,byClass){
  const m=$('main');

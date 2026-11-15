@@ -1,0 +1,28 @@
+window.DEF={
+school_name:"Bright Public School",
+h1_hi:"हर बच्चे की पहचान, हर बच्चे का भविष्य।",
+h1_en:"Every child known. Every future bright.",
+sub_hi:"नर्सरी से कक्षा 5 तक CBSE शिक्षा। कोइलाबाज़ार, राजमहल।",
+sub_en:"CBSE education from Nursery to Class 5 at Koilabazar, Rajmahal.",
+adm_p_hi:"नए सत्र के लिए प्रवेश खुले हैं। कृपया ये दस्तावेज़ लेकर स्कूल ऑफिस आएं:",
+adm_p_en:"Admissions are open for the new session. Please bring these documents to the school office:",
+docs_hi:"बच्चे का जन्म प्रमाण पत्र\nपिछली कक्षा की रिपोर्ट कार्ड\n4 फोटो\nपते का प्रमाण",
+docs_en:"Child's birth certificate\nPrevious class report card\n4 photographs\nAddress proof",
+fees:"Nursery – UKG | ₹ 000 | ₹ 000\nClass 1 – 5 | ₹ 000 | ₹ 000",
+fee_note_hi:"सही शुल्क के लिए स्कूल ऑफिस से संपर्क करें।",
+fee_note_en:"Please contact the school office for exact fees.",
+address:"Koilabazar, Rajmahal, Jharkhand",
+phone:"+91 00000 00000",
+email:"",
+hours_hi:"सोमवार से शनिवार, सुबह 8 से दोपहर 2 बजे",
+hours_en:"Monday to Saturday, 8:00 am to 2:00 pm"};
+window.SITE_FIELDS=[
+["school_name","School name"],
+["h1_hi","Main heading (Hindi)"],["h1_en","Main heading (English)"],
+["sub_hi","Sub text (Hindi)","area"],["sub_en","Sub text (English)","area"],
+["adm_p_hi","Admission intro (Hindi)","area"],["adm_p_en","Admission intro (English)","area"],
+["docs_hi","Documents list, Hindi (har line ek document)","area"],["docs_en","Documents list, English (har line ek document)","area"],
+["fees","Fees table (har line: Class | Admission fee | Monthly fee)","area"],
+["fee_note_hi","Fees note (Hindi)"],["fee_note_en","Fees note (English)"],
+["address","Address"],["phone","Phone number"],["email","Email (optional)"],
+["hours_hi","Office time (Hindi)"],["hours_en","Office time (English)"]];
