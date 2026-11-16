@@ -101,6 +101,9 @@ button.btn{border:0;cursor:pointer}
 #bar button span{font-size:19px}
 #bar button[hidden]{display:none}
 @media(max-width:480px){.logo span{display:none}}
+.card.pri{grid-column:1/-1;border-color:var(--gold);border-left-color:var(--gold);box-shadow:0 0 18px rgba(245,183,0,.15)}
+.card.pri img{max-width:280px}
+.role{display:inline-block;background:var(--gold);color:#1a1300;font:700 13px var(--f);letter-spacing:.08em;text-transform:uppercase;padding:2px 10px;margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -200,7 +203,9 @@ function paint(){
  const wn=waNumber();['wa','wa2'].forEach(id=>{const el=$(id);el.hidden=!wn;if(wn)el.href='https://wa.me/'+wn+'?text='+encodeURIComponent(T[L].wa_msg)});
  const e=v('email');$('emp').hidden=!e;$('em').textContent=e;$('em').href='mailto:'+e;
  const none=`<p class="mut">${T[L].none}</p>`;
- $('tch').innerHTML=(D.t||[]).map(x=>`<div class="card">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
+ const rk=q=>q==='Principal'?0:q==='Vice Principal'?1:2;
+ const POSTL={Principal:['प्रधानाचार्य','Principal','Principal'],'Vice Principal':['उप-प्रधानाचार्य','Vice Principal','Vice Principal'],Clerk:['क्लर्क','Clerk','Clerk'],Peon:['चपरासी','Peon','Peon'],Driver:['ड्राइवर','Driver','Driver'],Other:['अन्य','Other','Other']};
+ $('tch').innerHTML=[...(D.t||[])].sort((a,b)=>rk(a.post)-rk(b.post)).map(x=>`<div class="card${rk(x.post)===0?' pri':''}">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}${POSTL[x.post]?`<div class="role">${esc(POSTL[x.post][IL()])}</div>`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
  $('gal').innerHTML=(D.g||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
  $('not').innerHTML=(D.n||[]).map((x,i)=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut" style="white-space:pre-line">${esc(x.body)}</span><button class="spk" data-say="${i}">${T[L].say}</button></div>`).join('')||none;
  if(typeof ME!=='undefined')barLabel();
