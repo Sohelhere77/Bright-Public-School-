@@ -91,29 +91,34 @@ footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--mut);fon
 .bigf span{font-size:34px;line-height:1}
 #panelView .shg button{background:var(--surface2);border:1px solid var(--line);color:var(--ink);text-align:left;display:flex;gap:10px;align-items:center;padding:14px;font:600 16px 'Noto Sans Devanagari','Plus Jakarta Sans',sans-serif;border-radius:8px}
 #panelView .shg button:hover{border-color:var(--neon)}
+.spk{display:block;margin-top:8px;background:none;border:1px solid var(--neon);color:var(--neon);padding:4px 12px;border-radius:14px;font:600 14px var(--f);letter-spacing:.04em;cursor:pointer}
+#langs{display:flex;border:1px solid var(--gold);border-radius:6px;overflow:hidden;flex:none}
+#langs button{background:none;border:0;color:var(--gold);padding:7px 9px;font:700 14px var(--f);cursor:pointer}
+#langs button.on{background:var(--gold);color:#1a1300}
+.btn.wa{background:#25D366;color:#06260f}
+button.btn{border:0;cursor:pointer}
+#bar button{font:700 11px var(--f);letter-spacing:.02em;text-transform:none;padding:8px 2px 6px;min-width:0;overflow:hidden}
+#bar button span{font-size:19px}
+#bar button[hidden]{display:none}
+@media(max-width:480px){.logo span{display:none}}
 </style>
 </head>
 <body>
 <header><div class="w">
 <a class="logo" href="#top"><img src="logo.png" alt=""><span data-n></span></a>
 <nav class="top"><a href="#about" data-i="nav_about"></a><a href="#admission" data-i="nav_adm"></a><a href="#fees" data-i="nav_fee"></a><a href="#teachers" data-i="nav_tch"></a><a href="#gallery" data-i="nav_gal"></a><a href="#notices" data-i="nav_not"></a><a href="#contact" data-i="nav_con"></a></nav>
-<button id="lang">English</button>
+<div id="langs"><button data-l="hi">हिं</button><button data-l="en">EN</button><button data-l="hn">Hn</button></div>
 </div></header>
 <div id="site"><main id="top">
 <div class="hero"><div class="w">
 <img class="herologo" src="logo.png" alt="Bright Public School">
 <div>
-<h1 data-s="h1"></h1><p data-s="sub"></p><a class="btn" href="#admission" data-i="apply"></a>
+<h1 data-s="h1"></h1><p data-s="sub"></p><button class="btn" id="applyBtn" data-i="apply"></button>
 <div class="hud"><div><b>CBSE</b><span data-i="hud1"></span></div><div><b>Nursery–5</b><span data-i="hud2"></span></div><div><b>Rajmahal</b><span data-i="hud3"></span></div></div>
 </div>
 </div></div>
 <section id="about"><div class="w"><h2 data-i="nav_about"></h2><p data-s="about" style="white-space:pre-line;max-width:60ch"></p></div></section>
 <section id="facSec" class="alt"><div class="w"><h2 id="facilities" data-i="nav_fac"></h2><ul class="chips" id="fac"></ul></div></section>
-<section id="admission"><div class="w"><h2 data-i="nav_adm"></h2>
-<p data-s="adm_p" class="mut"></p><ul class="chips" id="docs"></ul></div></section>
-<section id="fees" class="alt"><div class="w"><h2 data-i="nav_fee"></h2>
-<table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr><tbody id="feerows"></tbody></table>
-<p class="mut" data-s="fee_note"></p></div></section>
 <section id="teachers"><div class="w"><h2 data-i="nav_tch"></h2><div class="grid" id="tch"></div></div></section>
 <section id="gallery" class="alt"><div class="w"><h2 data-i="nav_gal"></h2><div class="gal" id="gal"></div></div></section>
 <section id="notices"><div class="w"><h2 data-i="nav_not"></h2><div id="not"></div></div></section>
@@ -121,19 +126,32 @@ footer{border-top:1px solid var(--line);padding:24px 0 30px;color:var(--mut);fon
 <p><b data-i="addr_l"></b><br><span id="addr"></span></p>
 <p><b data-i="ph_l"></b><br><a id="ph"></a></p>
 <p id="emp" hidden><b>Email</b><br><a id="em"></a></p>
-<p><b data-i="tm_l"></b><br><span data-s="hours"></span></p></div></section>
+<p><b data-i="tm_l"></b><br><span data-s="hours"></span></p><p><a class="btn wa" id="wa" target="_blank" rel="noopener" data-i="wa" hidden></a></p></div></section>
 </main>
 <footer><div class="w">© 2026 <span data-n></span> · CBSE · <a class="adm" href="#" id="fl">Staff login</a></div></footer></div>
-<div id="panelView" hidden><div class="w"><button id="pback" hidden>← Back</button><h2 id="ptitle"></h2><p class="mut" id="pwho" style="margin:0 0 14px"></p><div id="pmain"></div></div></div>
-<nav id="bar"><button id="bHome" class="on"><span>🏠</span><i style="font-style:normal" data-i="nav_home"></i></button><button id="bExp"><span>🧭</span><i style="font-style:normal" data-i="nav_exp"></i></button><button id="bMenu"><span>🔐</span>Staff login</button></nav>
+<div id="admView" hidden>
+<section id="admission"><div class="w"><h2 data-i="nav_adm"></h2>
+<p data-s="adm_p" class="mut"></p><ul class="chips" id="docs"></ul></div></section>
+<section id="fees" class="alt"><div class="w"><h2 data-i="nav_fee"></h2>
+<table><tr><th data-i="cls"></th><th data-i="adm_fee"></th><th data-i="mon_fee"></th></tr><tbody id="feerows"></tbody></table>
+<p class="mut" data-s="fee_note"></p></div></section>
+<section id="admact" style="padding:28px 0"><div class="w"><a class="btn wa" id="wa2" target="_blank" rel="noopener" data-i="wa" hidden></a> <a class="btn" id="call2" data-i="call"></a></div></section>
+</div>
+<div id="panelView" hidden><div class="w"><button id="pback" hidden data-i="back">← Back</button><h2 id="ptitle"></h2><p class="mut" id="pwho" style="margin:0 0 14px"></p><div id="pmain"></div></div></div>
+<nav id="bar"><button id="bHome" class="on"><span>🏠</span><i style="font-style:normal" data-i="nav_home"></i></button><button id="bAdm"><span>📝</span><i style="font-style:normal" data-i="nav_adm"></i></button><button id="bAtt" hidden><span>✅</span><i style="font-style:normal" data-i="nav_att"></i></button><button id="bMgt" hidden><span>💰</span><i style="font-style:normal" data-i="nav_mgt"></i></button><button id="bExp"><span>🧭</span><i style="font-style:normal" data-i="nav_exp"></i></button><button id="bMenu"><span>🔐</span>Staff login</button></nav>
 <div id="sheet" hidden><div class="sh" id="shBody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="defaults.js"></script>
+<script src="i18n.js"></script>
 <script>
-const T={hi:{nav_home:"होम",nav_exp:"मेन्यू",nav_about:"हमारे बारे में",nav_fac:"सुविधाएँ",hud1:"बोर्ड",hud2:"कक्षाएँ",hud3:"स्थान",f_school:"विद्यालय",f_students:"छात्र व अभिभावक",f_media:"मीडिया",f_contact:"संपर्क",nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",apply:"प्रवेश के लिए आवेदन",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",none:"अभी कुछ नहीं है।",lng:"English"},
-en:{nav_home:"Home",nav_exp:"Menu",nav_about:"About",nav_fac:"Facilities",hud1:"Board",hud2:"Classes",hud3:"Location",f_school:"School",f_students:"Students & Parents",f_media:"Media",f_contact:"Contact",nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Apply for admission",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",none:"Nothing here yet.",lng:"हिन्दी"}};
+const T={hi:{say:"🔊 सुनें",nav_home:"होम",nav_exp:"मेन्यू",nav_about:"हमारे बारे में",nav_fac:"सुविधाएँ",hud1:"बोर्ड",hud2:"कक्षाएँ",hud3:"स्थान",f_school:"विद्यालय",f_students:"छात्र व अभिभावक",f_media:"मीडिया",f_contact:"संपर्क",nav_adm:"प्रवेश",nav_fee:"शुल्क",nav_tch:"शिक्षक",nav_gal:"गैलरी",nav_not:"सूचना",nav_con:"संपर्क",apply:"प्रवेश के लिए आवेदन",cls:"कक्षा",adm_fee:"प्रवेश शुल्क",mon_fee:"मासिक शुल्क",addr_l:"पता",ph_l:"फोन",tm_l:"ऑफिस समय",none:"अभी कुछ नहीं है।",lng:"English"},
+en:{say:"🔊 Listen",nav_home:"Home",nav_exp:"Menu",nav_about:"About",nav_fac:"Facilities",hud1:"Board",hud2:"Classes",hud3:"Location",f_school:"School",f_students:"Students & Parents",f_media:"Media",f_contact:"Contact",nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Apply for admission",cls:"Class",adm_fee:"Admission fee",mon_fee:"Monthly fee",addr_l:"Address",ph_l:"Phone",tm_l:"Office hours",none:"Nothing here yet.",lng:"हिन्दी"}};
+Object.assign(T.hi,{nav_att:"उपस्थिति",nav_mgt:"प्रबंधन",panel:"पैनल",login:"स्टाफ लॉगिन",back:"← वापस",wa:"WhatsApp पर संदेश करें",call:"कॉल करें",wa_msg:"नमस्ते, मुझे प्रवेश के बारे में जानकारी चाहिए।"});
+Object.assign(T.en,{nav_att:"Attendance",nav_mgt:"Management",panel:"Panel",login:"Staff login",back:"← Back",wa:"Message on WhatsApp",call:"Call us",wa_msg:"Hello, I would like to know about admission."});
+T.hn=Object.assign({},T.en,{say:"🔊 Suniye",nav_home:"Home",nav_exp:"Menu",nav_about:"About",nav_fac:"Facilities",hud1:"Board",hud2:"Classes",hud3:"Location",f_school:"School",f_students:"Students & Parents",f_media:"Media",f_contact:"Contact",nav_adm:"Admission",nav_fee:"Fees",nav_tch:"Teachers",nav_gal:"Gallery",nav_not:"Notices",nav_con:"Contact",apply:"Admission ke liye apply karein",cls:"Class",adm_fee:"Admission fees",mon_fee:"Monthly fees",addr_l:"Pata",ph_l:"Phone",tm_l:"Office ka samay",none:"Abhi kuch nahi hai.",nav_att:"Attendance",nav_mgt:"Management",panel:"Panel",login:"Staff login",back:"← Wapas",wa:"WhatsApp par message karein",call:"Call karein",wa_msg:"Namaste, mujhe admission ke baare mein jaankari chahiye."});
 let L=localStorage.getItem('lang')||'hi',S={},D={},ME=null;
+if(!T[L])L='hi';
 const sb=CONFIG.url.includes('YOUR-')?null:supabase.createClient(CONFIG.url,CONFIG.key);
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -141,25 +159,53 @@ const today=()=>{const d=new Date();return new Date(d.getTime()-d.getTimezoneOff
 const v=k=>(S[k]!=null&&S[k]!=='')?S[k]:DEF[k];
 const lv=k=>v(k+'_'+L);
 const lines=s=>String(s||'').split('\n').filter(x=>x.trim());
+/* ---------- 3 bhasha: Hindi / English / Hinglish ---------- */
+const IL=()=>L==='hi'?0:L==='en'?1:2;
+function trStr(s){
+ const k=String(s).trim();if(!k)return s;
+ const d=window.I18N&&I18N[k];
+ if(d){const r=L==='hi'?d[0]:(L==='en'?d[1]:(d[2]||k));return s.replace(k,()=>r)}
+ const m=k.match(/^(.*?)\s*\/\s*([\u0900-\u097F].*)$/);
+ if(m)return s.replace(k,()=>L==='hi'?m[2]:m[1]);
+ if(L!=='hn'&&window.I18N_RX){for(const [re,fh,fe] of I18N_RX){const x=k.match(re);if(x){const r=(L==='hi'?fh:fe)(x);return s.replace(k,()=>r)}}}
+ return s;
+}
+function trTree(n){
+ if(n.nodeType===3){const r=trStr(n.nodeValue);if(r!==n.nodeValue)n.nodeValue=r;return}
+ if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE'||n.tagName==='TEXTAREA')return;
+ if(n.placeholder){const r=trStr(n.placeholder);if(r!==n.placeholder)n.placeholder=r}
+ n.childNodes.forEach(trTree);
+}
+const trObs=new MutationObserver(ms=>ms.forEach(m=>m.addedNodes.forEach(trTree)));
+['panelView','sheet'].forEach(id=>trObs.observe($(id),{childList:true,subtree:true}));
+const _al=window.alert.bind(window),_cf=window.confirm.bind(window),_pr=window.prompt.bind(window);
+window.alert=m=>_al(trStr(String(m)));
+window.confirm=m=>_cf(trStr(String(m)));
+window.prompt=(m,d)=>_pr(trStr(String(m)),d);
+const waNumber=()=>{let n=String(v('whatsapp')||v('phone')||'').replace(/\D/g,'');if(n.length===10)n='91'+n;return(/^\d{11,15}$/.test(n)&&!/^(\d)\1+$/.test(n.slice(2)))?n:''};
+
 function paint(){
  document.documentElement.lang=L;
  document.querySelectorAll('[data-i]').forEach(e=>e.textContent=T[L][e.dataset.i]);
  document.querySelectorAll('[data-s]').forEach(e=>e.textContent=lv(e.dataset.s));
  document.querySelectorAll('[data-n]').forEach(e=>e.textContent=v('school_name'));
  document.title=v('school_name');
- $('lang').textContent=T[L].lng;
+ document.querySelectorAll('#langs button').forEach(b=>b.classList.toggle('on',b.dataset.l===L));
  $('docs').innerHTML=lines(lv('docs')).map(x=>`<li>${esc(x)}</li>`).join('');
  $('feerows').innerHTML=lines(v('fees')).map(r=>{const c=r.split('|').map(s=>s.trim());return `<tr><td>${esc(c[0])}</td><td>${esc(c[1])}</td><td>${esc(c[2])}</td></tr>`}).join('');
  $('addr').textContent=v('address');
  const fcl=lines(lv('fac'));$('fac').innerHTML=fcl.map(x=>`<li>${esc(x)}</li>`).join('');$('facSec').hidden=!fcl.length;
  const p=v('phone');$('ph').textContent=p;$('ph').href='tel:'+p.replace(/[^+\d]/g,'');
+ $('call2').href='tel:'+p.replace(/[^+\d]/g,'');
+ const wn=waNumber();['wa','wa2'].forEach(id=>{const el=$(id);el.hidden=!wn;if(wn)el.href='https://wa.me/'+wn+'?text='+encodeURIComponent(T[L].wa_msg)});
  const e=v('email');$('emp').hidden=!e;$('em').textContent=e;$('em').href='mailto:'+e;
  const none=`<p class="mut">${T[L].none}</p>`;
  $('tch').innerHTML=(D.t||[]).map(x=>`<div class="card">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
  $('gal').innerHTML=(D.g||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
- $('not').innerHTML=(D.n||[]).map(x=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut">${esc(x.body)}</span></div>`).join('')||none;
+ $('not').innerHTML=(D.n||[]).map((x,i)=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut" style="white-space:pre-line">${esc(x.body)}</span><button class="spk" data-say="${i}">${T[L].say}</button></div>`).join('')||none;
+ if(typeof ME!=='undefined')barLabel();
 }
-$('lang').onclick=()=>{L=L==='hi'?'en':'hi';localStorage.setItem('lang',L);paint()};
+$('langs').onclick=e=>{const b=e.target.closest('button');if(!b)return;L=b.dataset.l;localStorage.setItem('lang',L);paint();$('sheet').hidden=true;if(ME&&!$('panelView').hidden&&lastTab)openTab(lastTab,navBack)};
 async function load(){
  if(!sb)return;
  const [t,g,n,s]=await Promise.all([sb.from('teachers_public').select('*').order('created_at'),sb.from('gallery').select('*').order('created_at',{ascending:false}),sb.from('notices').select('*').order('date',{ascending:false}).limit(10),sb.from('site_settings').select('*')]);
@@ -178,8 +224,9 @@ const allowed=k=>{
  if(k==='fees')return lvl('student')!=='none';
  if(k==='salary')return lvl('employee')!=='none';
  if(k==='staffhub'||k==='teachers')return isAdm()||lvl('employee')!=='none';
+ if(k==='atthub'||k==='sa')return isTeach();
+ if(k==='mgthub')return lvl('student')!=='none'||lvl('employee')!=='none';
  if(k==='students')return isTeach()||lvl('student')!=='none';
- if(k==='sa')return isTeach();
  return isAdm()||k==='notices';
 };
 async function fn(body){
@@ -197,18 +244,25 @@ const TABS={
  sa:{label:'Student attendance',run:()=>attendance('students','student_attendance','student_id',true)},
  ta:{label:'Teacher attendance',run:()=>attendance('teachers','teacher_attendance','teacher_id',false)},
  teachers:{label:'Teachers & Staff / कर्मचारी',run:()=>crud('teachers',EMP_F,['photo_url','name','post','subject','phone'],'created_at',false,!isAdm(),'employee')},
- notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details'],['date','Date','date']],['date','title','body'],'date',true,ME.access==='staff')},
+ notices:{label:'Notices / सूचना',run:()=>crud('notices',[['title','Title'],['body','Details (poori notice)','area'],['date','Date','date']],['date','title','body'],'date',true,ME.access==='staff',undefined,ME.access==='staff'?null:noticeGen)},
  staffhub:{label:'Staff / कर्मचारी',run:staffHub},
+ atthub:{label:'Attendance / उपस्थिति',run:attHub},
+ mgthub:{label:'Management / प्रबंधन',run:mgtHub},
  fees:{label:'Fees / फीस',run:()=>mgmtList('student')},
  salary:{label:'Salary / वेतन',run:()=>mgmtList('employee')},
  gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photos (ek saath kai chun sakte hain)','photos'],['caption','Caption (optional)']],['url','caption'],'created_at',true)}
 };
 
-const ICON={staffhub:'👥',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
-const setBar=a=>{$('bHome').classList.toggle('on',a==='home');$('bMenu').classList.toggle('on',a==='panel')};
-function showSite(){$('site').hidden=false;$('panelView').hidden=true;$('sheet').hidden=true;setBar('home');window.scrollTo(0,0)}
-function showPanel(){$('site').hidden=true;$('panelView').hidden=false;$('sheet').hidden=true;setBar('panel');window.scrollTo(0,0);navBack=null;$('pback').hidden=true}
-const barLabel=()=>{$('bMenu').innerHTML=ME?'<span>🎮</span>Panel':'<span>🔐</span>Staff login'};
+const ICON={staffhub:'👥',atthub:'✅',mgthub:'💰',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
+const setBar=a=>{[['bHome','home'],['bAdm','adm'],['bMenu','panel']].forEach(([id,k])=>$(id).classList.toggle('on',a===k))};
+function showAdm(id){$('site').hidden=true;$('panelView').hidden=true;$('admView').hidden=false;$('sheet').hidden=true;setBar('adm');const el=id&&$(id);if(el)el.scrollIntoView();else window.scrollTo(0,0)}
+function goTo(id){$('sheet').hidden=true;if(id==='admission'||id==='fees'){showAdm(id);return}showSite();const el=$(id);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),40)}
+function showSite(){$('site').hidden=false;$('admView').hidden=true;$('panelView').hidden=true;$('sheet').hidden=true;setBar('home');window.scrollTo(0,0)}
+function showPanel(){$('site').hidden=true;$('admView').hidden=true;$('panelView').hidden=false;$('sheet').hidden=true;setBar('panel');window.scrollTo(0,0);navBack=null;$('pback').hidden=true}
+const barLabel=()=>{
+ $('bMenu').innerHTML=ME?`<span>🎮</span>${T[L].panel}`:`<span>🔐</span>${T[L].login}`;
+ $('bAtt').hidden=!(ME&&isTeach());$('bMgt').hidden=!(ME&&(allowed('fees')||allowed('salary')));
+};
 async function loadMe(){
  if(!sb)return false;
  const {data:{session}}=await sb.auth.getSession();
@@ -243,7 +297,7 @@ function openSheet(){
  const web=['site','notices','gallery'].filter(allowed).map(btn).join('');
  const gs=[];if(web)gs.push(['📁 Website',web]);
  gs.push(['📁 Account','<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button>']);
- $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p><div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}</div>`+foldersHTML(gs);
+ $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p><div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}${big('atthub','✅','Attendance')}${big('mgthub','💰','Management')}</div>`+foldersHTML(gs);
  $('sheet').hidden=false;
 }
 function openExplore(){
@@ -260,7 +314,7 @@ function openExplore(){
 $('sheet').onclick=async e=>{
  if(e.target.id==='sheet'){$('sheet').hidden=true;return}
  const b=e.target.closest('button');if(!b)return;
- if(b.dataset.go){$('sheet').hidden=true;showSite();const el=$(b.dataset.go);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),40)}
+ if(b.dataset.go)goTo(b.dataset.go);
  else if(b.dataset.act==='staff'){$('sheet').hidden=true;$('bMenu').click()}
  else if(b.dataset.k)openTab(b.dataset.k);
  else if(b.dataset.act==='out'){await sb.auth.signOut();location.reload()}
@@ -275,12 +329,23 @@ $('bHome').onclick=showSite;
 $('bExp').onclick=openExplore;
 $('bMenu').onclick=()=>{if(!ME)return showLogin();$('sheet').hidden?openSheet():($('sheet').hidden=true)};
 $('fl').onclick=e=>{e.preventDefault();$('bMenu').click()};
-document.querySelector('header nav').addEventListener('click',()=>{if(!$('panelView').hidden)showSite()});
+document.querySelector('header nav').addEventListener('click',e=>{
+ const a=e.target.closest('a');if(!a)return;
+ const id=(a.getAttribute('href')||'').slice(1);
+ if(id==='admission'||id==='fees'){e.preventDefault();showAdm(id);return}
+ if(!$('panelView').hidden||!$('admView').hidden)showSite();
+});
+document.querySelector('.logo').addEventListener('click',()=>{if($('site').hidden)showSite()});
+$('applyBtn').onclick=()=>showAdm('admission');
+$('bAdm').onclick=()=>showAdm();
+$('bAtt').onclick=()=>openTab('atthub');
+$('bMgt').onclick=()=>openTab('mgthub');
+
 
 async function siteTab(){
  const {data}=await sb.from('site_settings').select('*');
  const S=Object.fromEntries((data||[]).map(r=>[r.key,r.value]));
- $('pmain').innerHTML='<p>Yahan se website ka text badlein. Save karte hi website par badal jata hai.</p>'+SITE_FIELDS.map(([k,l,t])=>`<label>${l}${t==='area'?`<textarea id="s_${k}" rows="3"></textarea>`:`<input id="s_${k}">`}</label>`).join('')+'<button id="ssv">Save website</button> <span id="e"></span>';
+ $('pmain').innerHTML='<p>Yahan se website ka text badlein. Save karte hi website par badal jata hai.</p>'+SITE_FIELDS.map(([k,l,t])=>`<label>${Array.isArray(l)?l[IL()]:l}${t==='area'?`<textarea id="s_${k}" rows="3"></textarea>`:`<input id="s_${k}">`}</label>`).join('')+'<button id="ssv">Save website</button> <span id="e"></span>';
  SITE_FIELDS.forEach(([k])=>$('s_'+k).value=(S[k]!=null&&S[k]!=='')?S[k]:(DEF[k]||''));
  $('ssv').onclick=async()=>{
   const rows=SITE_FIELDS.map(([k])=>({key:k,value:$('s_'+k).value,updated_at:new Date().toISOString()}));
@@ -293,7 +358,7 @@ const LV={none:'Koi access nahi',view:'Sirf dekhna',edit:'Dekhna + edit'};
 const lvOpts=c=>Object.entries(LV).map(([k,l])=>`<option value="${k}" ${k===c?'selected':''}>${l}</option>`).join('');
 async function staffTab(){
  const isOwner=ME.access==='owner';
- $('pmain').innerHTML=`<h3>Naya staff add karein</h3><div class="f"><label>Name<input id="sn"></label><label>Post<select id="sp">${POSTS.map(p=>`<option>${p}</option>`).join('')}</select></label><label>Gmail<input id="se" type="email"></label><label>Access<select id="sx">${accOpts('staff',isOwner)}</select></label>${isOwner?`<label>Management: Student fees<select id="sfa">${lvOpts('none')}</select></label><label>Management: Salary<select id="ssa">${lvOpts('none')}</select></label>`:''}<label>Temporary password (8+ akshar)<input id="spw"></label></div><button id="sadd">Add staff</button> <span id="e"></span><h3>Staff list</h3><div class="wrap" id="sl">Loading...</div>`;
+ $('pmain').innerHTML=`<h3>Naya staff add karein</h3><div class="f"><label>Name<input id="sn"></label><label>Post<select id="sp">${POSTS.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></label><label>Gmail<input id="se" type="email"></label><label>Access<select id="sx">${accOpts('staff',isOwner)}</select></label>${isOwner?`<label>Management: Student fees<select id="sfa">${lvOpts('none')}</select></label><label>Management: Salary<select id="ssa">${lvOpts('none')}</select></label>`:''}<label>Temporary password (8+ akshar)<input id="spw"></label></div><button id="sadd">Add staff</button> <span id="e"></span><h3>Staff list</h3><div class="wrap" id="sl">Loading...</div>`;
  $('sp').onchange=()=>{const p=$('sp').value;$('sx').value=((p==='Principal'||p==='Vice Principal')&&isOwner)?'admin':(p==='Teacher'?'teacher':'staff');if(!$('sx').value)$('sx').value='staff'};
  $('sp').onchange();
  $('sadd').onclick=async()=>{
@@ -341,12 +406,13 @@ async function upPhoto(file,folder){
 }
 const inp=([k,l,t],pre='f_')=>{
  t=t||'text';
+ if(t==='area')return `<label>${l}<textarea id="${pre}${k}" rows="4"></textarea></label>`;
  if(t==='sel')return `<label>${l}<select id="${pre}${k}">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`;
  if(t==='photo'||t==='photos')return `<label>${l}<input id="${pre}${k}" type="file" accept="image/*" ${t==='photos'?'multiple':''}></label>`;
  if(t.startsWith('opt:'))return `<label>${l}<select id="${pre}${k}">${t.slice(4).split('|').map(o=>{const [a,b]=o.split('=');return `<option value="${a}">${b||a}</option>`}).join('')}</select></label>`;
  return `<label>${l}<input id="${pre}${k}" type="${t}"></label>`;
 };
-async function crud(table,fields,cols,order,desc,ro,prof){
+async function crud(table,fields,cols,order,desc,ro,prof,after){
  const m=$('pmain');
  m.innerHTML=(ro?'':`<div class="f">${fields.map(f=>inp(f)).join('')}</div><button id="add">Add / जोड़ें</button> <span class="msg" id="e"></span>`)+`<h3>List</h3><div class="wrap" id="lst">Loading...</div>`;
  if(!ro)$('add').onclick=async()=>{
@@ -362,7 +428,7 @@ async function crud(table,fields,cols,order,desc,ro,prof){
     const rows=[];for(const f of files)rows.push({...o,[pk]:await upPhoto(f,table)});
     const {error}=await sb.from(table).insert(rows);if(error)throw error;
    }else{const {error}=await sb.from(table).insert(o);if(error)throw error}
-   crud(table,fields,cols,order,desc,ro,prof);
+   crud(table,fields,cols,order,desc,ro,prof,after);
   }catch(x){btn.disabled=false;msg.textContent=x.message}
  };
  const {data,error}=await sb.from(table).select('*').order(order,{ascending:!desc});
@@ -372,20 +438,21 @@ async function crud(table,fields,cols,order,desc,ro,prof){
  $('lst').innerHTML=`<table><tr>${cols.map(c=>`<th>${c}</th>`).join('')}${act?'<th></th>':''}</tr>${data.map(r=>`<tr>${cols.map(c=>`<td>${cell(r,c)}</td>`).join('')}${act?`<td>${prof?`<button class="g" data-p="${r.id}">Profile</button> `:''}${ro?'':`<button class="r" data-id="${r.id}">Delete</button>`}</td>`:''}</tr>`).join('')}</table>`;
  $('lst').onclick=async e=>{
   const d=e.target.dataset;
-  if(d.p){const nb=navBack,tt=$('ptitle').textContent;backTo=()=>{setView(tt,nb);crud(table,fields,cols,order,desc,ro,prof)};profile(prof,d.p);return}
+  if(d.p){const nb=navBack,tt=$('ptitle').textContent;backTo=()=>{setView(tt,nb);crud(table,fields,cols,order,desc,ro,prof,after)};profile(prof,d.p);return}
   if(ro||!d.id)return;
   if(confirm('Delete karein?')){
    const r=data.find(x=>x.id===d.id);const u=(r&&(r.url||r.photo_url))||'';const i=u.indexOf('/photos/');
    if(i>-1)await sb.storage.from('photos').remove([decodeURIComponent(u.slice(i+8))]);
-   await sb.from(table).delete().eq('id',d.id);crud(table,fields,cols,order,desc,ro,prof)}
+   await sb.from(table).delete().eq('id',d.id);crud(table,fields,cols,order,desc,ro,prof,after)}
  };
+ if(after)after();
 }
 async function attendance(list,att,idCol,byClass,pre){
  const m=$('pmain');
  m.innerHTML=`<div class="f">${byClass?`<label>Class<select id="cl">${CONFIG.classes.map(c=>`<option>${c}</option>`).join('')}</select></label>`:''}<label>Date<input id="dt" type="date" value="${today()}"></label></div><div class="wrap" id="lst"></div><button id="sv" hidden>Save attendance</button> <span id="e"></span>`;
  if(pre&&byClass)$('cl').value=pre;
  const load=async()=>{
-  let q=sb.from(list).select('*').order(byClass?'roll':'name');if(byClass)q=q.eq('class',$('cl').value);
+  let q=sb.from(list).select('*').order(byClass?'roll':'name');if(byClass)q=q.eq('class',$('cl').value);if(list==='students')q=q.neq('status','passed_out');
   const [{data:people},{data:rec}]=await Promise.all([q,sb.from(att).select('*').eq('date',$('dt').value)]);
   const cur={};(rec||[]).forEach(r=>cur[r[idCol]]=r.status);
   $('lst').innerHTML=`<table>${(people||[]).map(p=>`<tr><td>${byClass?esc(p.roll)+'. ':''}${esc(p.name)}</td><td class="att">${['P','A','L'].map(s=>`<label><input type="radio" name="r_${p.id}" value="${s}" ${(cur[p.id]||'P')===s?'checked':''}>${s==='P'?'Present':s==='A'?'Absent':'Leave'}</label>`).join('')}</td></tr>`).join('')}</table>`;
@@ -396,8 +463,117 @@ async function attendance(list,att,idCol,byClass,pre){
  m.querySelectorAll('select,input').forEach(x=>x.onchange=load);load();
 }
 
+/* ---------- Voice (free, phone ki apni awaaz) + Notice helper (free templates) ---------- */
+const voiceFor=lang=>{const vs=speechSynthesis.getVoices();return vs.find(x=>x.lang===lang)||vs.find(x=>x.lang.toLowerCase().startsWith(lang.slice(0,2)))||null};
+let sayId=null;
+function speak(text,id){
+ if(!('speechSynthesis' in window)){alert('Is browser mein voice support nahi hai');return}
+ const ss=speechSynthesis;
+ if(ss.speaking&&sayId===id){ss.cancel();sayId=null;return}
+ ss.cancel();sayId=id;
+ String(text||'').split(/\n+/).map(x=>x.trim()).filter(Boolean).forEach(chunk=>{
+  const hi=/[\u0900-\u097F]/.test(chunk),u=new SpeechSynthesisUtterance(chunk);
+  u.lang=hi?'hi-IN':'en-IN';const vo=voiceFor(u.lang);if(vo)u.voice=vo;u.rate=.95;
+  ss.speak(u);
+ });
+}
+$('not').onclick=e=>{const b=e.target.closest('[data-say]');if(!b)return;const x=(D.n||[])[+b.dataset.say];if(x)speak(x.title+'.\n'+(x.body||''),'n'+b.dataset.say)};
+
+function genNotice(o){
+ const school=v('school_name');
+ const wd=(d,l)=>d?new Date(d+'T00:00:00').toLocaleDateString(l==='hi'?'hi-IN':'en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'';
+ const range=o.d1&&o.d2&&o.d2!==o.d1;
+ const parts=(o.lang==='both'?['hi','en']:[o.lang]).map(l=>{
+  const hi=l==='hi',hn=l==='hn';
+  const num=/^\d+$/.test(o.cls||'');
+  const cl=o.cls?(hi?(num?'कक्षा '+o.cls:({Nursery:'नर्सरी',LKG:'एलकेजी',UKG:'यूकेजी'}[o.cls]||o.cls)):(num?'Class '+o.cls:o.cls)):'';
+  const a=wd(o.d1,l),b=wd(o.d2,l);
+  const wh=o.d1?(range?(hi?`${a} से ${b} तक`:hn?`${a} se ${b} tak`:`from ${a} to ${b}`):(hi?`${a} को`:hn?`${a} ko`:`on ${a}`)):(hi?'निर्धारित तिथि को':hn?'nirdharit tithi ko':'on the scheduled date');
+  const tm=o.time?(hi?` (समय: ${o.time})`:hn?` (samay: ${o.time})`:` at ${o.time}`):'';
+  const r=o.reason.replace(/[.।]+$/,'');
+  const x=o.extra?(' '+o.extra.replace(/[.।]+$/,'')+(hi?'।':'.')):'';
+  const due=o.d1?a:'';
+  const aud=hi?(cl?cl+' के अभिभावकों एवं विद्यार्थियों':'सभी अभिभावकों एवं विद्यार्थियों'):hn?(cl?cl+' ke abhibhavakon aur vidyarthiyon':'sabhi abhibhavakon aur vidyarthiyon'):(cl?'the parents and students of '+cl:'all parents and students');
+  const par=hi?(cl?cl+' के अभिभावकों':'सभी अभिभावकों'):hn?(cl?cl+' ke abhibhavakon':'sabhi abhibhavakon'):('Parents '+(cl?'of '+cl+' ':''));
+  const TP={
+   hi:{
+    holiday:['अवकाश की सूचना',`${aud} को सूचित किया जाता है कि ${r?r+' के कारण ':''}विद्यालय ${wh} बंद रहेगा।${x}`],
+    exam:['परीक्षा की सूचना',`${cl?cl+' की ':''}${r||'परीक्षा'} ${wh}${tm} आयोजित की जाएगी। सभी विद्यार्थी समय पर उपस्थित हों और आवश्यक सामग्री साथ लाएँ।${x}`],
+    ptm:['अभिभावक-शिक्षक बैठक',`${par} से अनुरोध है कि ${wh}${tm} विद्यालय पधारकर अपने बच्चे की प्रगति के बारे में शिक्षकों से अवश्य मिलें।${x}`],
+    fee:['फीस जमा करने की सूचना',`${par} से अनुरोध है कि बकाया शुल्क ${due?due+' तक ':''}विद्यालय कार्यालय में जमा करें। कृपया समय पर शुल्क जमा करें।${x}`],
+    event:[(r||'कार्यक्रम')+' की सूचना',`विद्यालय में ${wh}${tm} ${r||'एक कार्यक्रम'} का आयोजन किया जाएगा। सभी विद्यार्थी एवं अभिभावक सादर आमंत्रित हैं।${x}`],
+    admission:['प्रवेश प्रारंभ',`नए सत्र के लिए ${cl?cl+' में ':''}प्रवेश प्रारंभ हैं। इच्छुक अभिभावक आवश्यक दस्तावेज़ों के साथ विद्यालय कार्यालय में संपर्क करें।${x}`],
+    result:['परिणाम की सूचना',`${cl?cl+' का ':''}${r||'परीक्षा'} परिणाम ${wh} घोषित किया जाएगा। अभिभावक कृपया विद्यालय आकर रिपोर्ट कार्ड प्राप्त करें।${x}`],
+    general:['सूचना',`सभी को सूचित किया जाता है कि ${r||'—'}।${x}`]},
+   hn:{
+    holiday:['Avkash ki Suchna',`${aud} ko suchit kiya jata hai ki ${r?r+' ke karan ':''}school ${wh} band rahega.${x}`],
+    exam:['Pariksha ki Suchna',`${cl?cl+' ki ':''}${r||'pariksha'} ${wh}${tm} hogi. Sabhi vidyarthi samay par aayein aur zaroori saman saath layein.${x}`],
+    ptm:['Abhibhavak-Shikshak Baithak',`${par} se anurodh hai ki ${wh}${tm} school aakar apne bachche ki progress ke baare mein teachers se zaroor milein.${x}`],
+    fee:['Fees Jama Karne ki Suchna',`${par} se anurodh hai ki baki fees ${due?due+' tak ':''}school office mein jama karein. Kripya samay par fees jama karein.${x}`],
+    event:[(r||'Karyakram')+' ki Suchna',`School mein ${wh}${tm} ${r||'ek karyakram'} ka aayojan kiya jayega. Sabhi vidyarthi aur abhibhavak sadar aamantrit hain.${x}`],
+    admission:['Admission Shuru',`Naye session ke liye ${cl?cl+' mein ':''}admission shuru hain. Ichhuk abhibhavak zaroori documents ke saath school office mein sampark karein.${x}`],
+    result:['Result ki Suchna',`${cl?cl+' ka ':''}${r||'pariksha'} result ${wh} ghoshit kiya jayega. Abhibhavak kripya school aakar report card le jayein.${x}`],
+    general:['Suchna',`Sabhi ko suchit kiya jata hai ki ${r||'—'}.${x}`]},
+   en:{
+    holiday:['Holiday Notice',`This is to inform ${aud} that the school will remain closed ${wh}${r?' due to '+r:''}.${x}`],
+    exam:['Examination Notice',`The ${cl?cl+' ':''}${r||'examination'} will be held ${wh}${tm}. All students should arrive on time with the required materials.${x}`],
+    ptm:['Parent–Teacher Meeting',`${par}are requested to visit the school ${wh}${tm} to discuss their child's progress with the teachers.${x}`],
+    fee:['Fee Reminder',`${par}are requested to deposit the pending fees${due?' by '+due:''} at the school office. Kindly pay on time.${x}`],
+    event:[(r||'Event')+' Notice',`${r||'An event'} will be held at the school ${wh}${tm}. All students and parents are cordially invited.${x}`],
+    admission:['Admissions Open',`Admissions are open${cl?' for '+cl:''} for the new session. Interested parents may contact the school office with the required documents.${x}`],
+    result:['Result Notice',`The ${cl?cl+' ':''}${r||'examination'} result will be declared ${wh}. Parents are requested to collect the report card from the school.${x}`],
+    general:['Notice',`This is to inform everyone that ${r||'—'}.${x}`]}
+  };
+  const [t,bd]=TP[l][o.type];
+  return {t,b:bd.replace(/^./,c=>c.toUpperCase())+`\n— ${hi?'प्रबंधन':hn?'Prabandhan':'Management'}, ${school}`};
+ });
+ return {title:parts.map(p=>p.t).join(' / '),body:parts.map(p=>p.b).join('\n\n')};
+}
+function noticeGen(){
+ const T3=[['holiday','🏖️ Chhutti / Holiday'],['exam','📝 Exam'],['ptm','👨‍👩‍👧 PTM / Meeting'],['fee','💰 Fee reminder'],['event','🎉 Event / Function'],['admission','🏫 Admission open'],['result','📊 Result'],['general','📢 General']];
+ const box=document.createElement('div');
+ box.style.cssText='background:var(--surface);border:1px solid var(--neon);border-radius:10px;padding:14px;margin-bottom:16px';
+ box.innerHTML=`<b>✨ Notice likhne mein madad</b><p class="mut" style="margin:4px 0 10px"><small>Type chunein aur jankari bharein. Notice neeche ke form mein khud likh jayegi. Add dabane se pehle aap use badal sakte hain.</small></p><div class="f"><label>Notice ka type<select id="gt">${T3.map(([k,l])=>`<option value="${k}">${l}</option>`).join('')}</select></label><label>Bhasha<select id="gl"><option value="hi">Hindi</option><option value="en">English</option><option value="hn">Hinglish</option><option value="both">Hindi + English</option></select></label><label>Kis class ke liye<select id="gc"><option value="">Sabhi</option>${CONFIG.classes.map(c=>`<option value="${c}">${classLabel(c)}</option>`).join('')}</select></label><label>Date<input id="gd1" type="date"></label><label>Date tak (optional)<input id="gd2" type="date"></label><label>Samay (optional)<input id="gtm" placeholder="jaise 9:00 baje"></label></div><label>Karan / Event ka naam<input id="gr" placeholder="jaise Diwali, Annual Sports Day, Half-yearly exam"></label><label>Aur jankari (optional)<input id="gx"></label><button id="gbtn">✨ Notice likho</button> <button class="g" id="gsp">🔊 Sunayein</button> <p class="ok" id="gm"></p>`;
+ $('pmain').prepend(box);$('gl').value=L;
+ $('gbtn').onclick=()=>{
+  const n=genNotice({type:$('gt').value,lang:$('gl').value,cls:$('gc').value,d1:$('gd1').value,d2:$('gd2').value,time:$('gtm').value.trim(),reason:$('gr').value.trim(),extra:$('gx').value.trim()});
+  $('f_title').value=n.title;$('f_body').value=n.body;
+  $('gm').textContent='Neeche form mein likh diya ⬇ Dekh lein, jo badalna ho badal lein, phir Add dabayein.';
+ };
+ $('gsp').onclick=()=>speak($('f_title').value+'.\n'+$('f_body').value,'gen');
+}
+
+const DEFSUB={default:['Hindi','English','Maths','EVS / Science','GK'],Nursery:['Hindi','English','Maths','Rhymes / Oral','Drawing'],LKG:['Hindi','English','Maths','Rhymes / Oral','Drawing'],UKG:['Hindi','English','Maths','Rhymes / Oral','Drawing']};
+const subs=c=>{const raw=S['subjects_'+c];return lines(raw!=null&&raw!==''?raw:(DEFSUB[c]||DEFSUB.default).join('\n'))};
+function subjectsView(cls){
+ setView('Subjects',()=>classPage(cls));
+ $('pmain').innerHTML=`<p class="mut">${classLabel(cls)}</p><label>Subjects (har line mein ek)<textarea id="sbj" rows="8"></textarea></label><button id="sbs">Save subjects</button> <span id="e"></span><p class="mut"><small>Isi list se Study Tracker aur Promotion chalta hai. Har class ke subjects alag rakh sakte hain.</small></p>`;
+ $('sbj').value=subs(cls).join('\n');
+ $('sbs').onclick=async()=>{
+  const val=lines($('sbj').value).join('\n');
+  const {error}=await sb.from('site_settings').upsert({key:'subjects_'+cls,value:val,updated_at:new Date().toISOString()},{onConflict:'key'});
+  if(error){$('e').className='msg';$('e').textContent=error.message;return}
+  S['subjects_'+cls]=val;$('e').className='ok';$('e').textContent='Saved ✓';
+ };
+}
+function attHub(){
+ $('pmain').innerHTML=`<h3>📁 Students</h3><div class="shg" id="ac">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}</span></button>`).join('')}</div>${isAdm()?`<h3>📁 Staff</h3><div class="shg" id="at"><button><span>🧑‍🏫</span>Teacher attendance</button></div>`:''}`;
+ $('ac').onclick=e=>{const b=e.target.closest('button');if(!b)return;const c=b.dataset.c;setView('Attendance · '+classLabel(c),()=>openTab('atthub'));attendance('students','student_attendance','student_id',true,c)};
+ if(isAdm())$('at').onclick=()=>openTab('ta',()=>openTab('atthub'));
+}
+async function mgtHub(){
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const sf=allowed('fees'),ss=allowed('salary');
+ if(sf||ss)await sb.rpc('run_accrual');
+ const none=Promise.resolve({data:[]});
+ const [a,b]=await Promise.all([sf?sb.rpc('balances',{t:'student'}):none,ss?sb.rpc('balances',{t:'employee'}):none]);
+ const tot=r=>(r.data||[]).reduce((s,x)=>s+Math.max((+x.charged||0)-(+x.paid||0)-(+x.discounted||0),0),0);
+ pm.innerHTML=`<div class="shg" id="mg">${sf?`<button data-k="fees"><span>💰</span><span>Fees<br><small class="mut">Baki: ${money(tot(a))}</small></span></button>`:''}${ss?`<button data-k="salary"><span>💼</span><span>Salary<br><small class="mut">Baki: ${money(tot(b))}</small></span></button>`:''}</div>`;
+ $('mg').onclick=e=>{const x=e.target.closest('button');if(x)openTab(x.dataset.k,()=>openTab('mgthub'))};
+}
+
 /* ---------- Students hub (class-wise) / Staff hub / Study tracker ---------- */
-const classLabel=c=>/^\d+$/.test(c)?'Class '+c:c;
+const classLabel=c=>{const n=/^\d+$/.test(c);if(L==='hi')return n?'कक्षा '+c:({Nursery:'नर्सरी',LKG:'एलकेजी',UKG:'यूकेजी'}[c]||c);return n?'Class '+c:c};
 const SUBJ=['General','Hindi','English','Maths','EVS / Science','GK','Computer','Drawing','Rhymes / Oral','Behaviour'];
 const LVC={excellent:['Excellent','#3DDC97'],good:['Good','#7FD1FF'],average:['Average','#F5B700'],weak:['Weak','#FF6B6B']};
 const lvBadge=l=>l&&LVC[l]?`<span style="border:1px solid ${LVC[l][1]};color:${LVC[l][1]};padding:1px 8px;border-radius:10px;font-size:13px;white-space:nowrap">${LVC[l][0]}</span>`:'<span class="mut">-</span>';
@@ -413,12 +589,12 @@ const hubGo=(k,bk)=>{if(k==='add')addStudentView();else openTab(k,bk)};
 
 async function studentsHub(){
  const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
- const [sr,tr]=await Promise.all([sb.from('students').select('id,class'),isTeach()?sb.rpc('tracker_summary'):Promise.resolve({data:[]})]);
+ const [sr,tr]=await Promise.all([sb.from('students').select('id,class,status'),isTeach()?sb.rpc('tracker_summary'):Promise.resolve({data:[]})]);
  if(sr.error){pm.innerHTML=`<p class="msg">${esc(sr.error.message)}</p>`;return}
  const T2=Object.fromEntries((tr.data||[]).map(r=>[r.sid,r]));
  const cnt={},weak={};
- (sr.data||[]).forEach(s=>{cnt[s.class]=(cnt[s.class]||0)+1;if((T2[s.id]||{}).last_level==='weak')weak[s.class]=(weak[s.class]||0)+1});
- const top=[isAdm()?['add','➕','Add student']:null,isTeach()?['sa','✅','Attendance']:null,lvl('student')!=='none'?['fees','💰','Fees (sab classes)']:null].filter(Boolean);
+ (sr.data||[]).filter(s=>s.status!=='passed_out').forEach(s=>{cnt[s.class]=(cnt[s.class]||0)+1;if((T2[s.id]||{}).last_level==='weak')weak[s.class]=(weak[s.class]||0)+1});
+ const top=[isAdm()?['add','➕','Add student']:null].filter(Boolean);
  pm.innerHTML=`<div class="shg" id="hub">${top.map(([k,ic,l])=>`<button data-hk="${k}"><span>${ic}</span>${l}</button>`).join('')}</div><h3>📁 Classes</h3><div class="shg" id="cls">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}<br><small class="mut">${cnt[c]||0} students${weak[c]?' · ⚠ '+weak[c]+' weak':''}</small></span></button>`).join('')}</div><p class="mut"><small>Class kholkar students, study tracker, attendance aur fees dekhein.</small></p>`;
  $('hub').onclick=e=>{const b=e.target.closest('button');if(b)hubGo(b.dataset.hk,()=>openTab('students'))};
  $('cls').onclick=e=>{const b=e.target.closest('button');if(b)classPage(b.dataset.c)};
@@ -429,12 +605,12 @@ async function classPage(cls){
  const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
  const seeFees=lvl('student')!=='none',tch=isTeach();
  const none=Promise.resolve({data:[]});
- const [sr,tr,br]=await Promise.all([sb.from('students').select('*').eq('class',cls).order('roll',{ascending:true,nullsFirst:false}),tch?sb.rpc('tracker_summary'):none,seeFees?sb.rpc('balances',{t:'student'}):none]);
+ const [sr,tr,br]=await Promise.all([sb.from('students').select('*').eq('class',cls).neq('status','passed_out').order('roll',{ascending:true,nullsFirst:false}),tch?sb.rpc('tracker_summary'):none,seeFees?sb.rpc('balances',{t:'student'}):none]);
  if(sr.error){pm.innerHTML=`<p class="msg">${esc(sr.error.message)}</p>`;return}
  const T2=Object.fromEntries((tr.data||[]).map(r=>[r.sid,r])),B=Object.fromEntries((br.data||[]).map(b=>[b.pid,b]));
  const rows=sr.data.map(s=>{const t=T2[s.id]||{},b=B[s.id]||{};return {s,t,due:(+b.charged||0)-(+b.paid||0)-(+b.discounted||0)}});
  const cn=l=>rows.filter(r=>r.t.last_level===l).length;
- pm.innerHTML=`<div class="shg" id="cact">${isAdm()?'<button data-a="add"><span>➕</span>Add student</button>':''}${tch?'<button data-a="att"><span>✅</span>Attendance</button>':''}${seeFees?'<button data-a="fee"><span>💰</span>Fees</button>':''}</div><p class="mut" style="margin:10px 0">${rows.length} students${tch?` · 🟢 ${cn('excellent')+cn('good')} · 🟡 ${cn('average')} · 🔴 ${cn('weak')}`:''}</p><div class="f"><label>Search<input id="cq" placeholder="Naam"></label>${tch?`<label>Study level<select id="cf"><option value="">Sab</option><option value="weak">Weak (dhyan dein)</option><option value="average">Average</option><option value="good">Good</option><option value="excellent">Excellent</option><option value="none">Tracker nahi bhara</option></select></label>`:''}</div><div class="wrap" id="cl2"></div>`;
+ pm.innerHTML=`<div class="shg" id="cact">${isAdm()?'<button data-a="add"><span>➕</span>Add student</button><button data-a="subj"><span>📚</span>Subjects</button>':''}${tch?'<button data-a="att"><span>✅</span>Attendance</button>':''}${seeFees?'<button data-a="fee"><span>💰</span>Fees</button>':''}</div><p class="mut" style="margin:10px 0">${rows.length} students${tch?` · 🟢 ${cn('excellent')+cn('good')} · 🟡 ${cn('average')} · 🔴 ${cn('weak')}`:''}</p><div class="f"><label>Search<input id="cq" placeholder="Naam"></label>${tch?`<label>Study level<select id="cf"><option value="">Sab</option><option value="weak">Weak (dhyan dein)</option><option value="average">Average</option><option value="good">Good</option><option value="excellent">Excellent</option><option value="none">Tracker nahi bhara</option></select></label>`:''}</div><div class="wrap" id="cl2"></div>`;
  const draw=()=>{
   const q=$('cq').value.trim().toLowerCase(),f=tch?$('cf').value:'';
   const list=rows.filter(r=>(!q||String(r.s.name).toLowerCase().includes(q))&&(!f||(f==='none'?!r.t.last_level:r.t.last_level===f)));
@@ -445,6 +621,7 @@ async function classPage(cls){
  $('cact').onclick=e=>{
   const b=e.target.closest('button');if(!b)return;const a=b.dataset.a,back=()=>classPage(cls);
   if(a==='add')addStudentView(cls);
+  else if(a==='subj')subjectsView(cls);
   else if(a==='att'){setView('Attendance · '+classLabel(cls),back);attendance('students','student_attendance','student_id',true,cls)}
   else if(a==='fee'){setView('Fees · '+classLabel(cls),back);mgmtList('student',cls)}
  };
@@ -471,7 +648,7 @@ function addStudentView(cls){
 
 function staffHub(){
  const t=(k,ic,l)=>allowed(k)?`<button data-hk="${k}"><span>${ic}</span>${l}</button>`:'';
- $('pmain').innerHTML=`<div class="shg" id="hub">${t('teachers','👩‍🏫','Teachers & Staff members')}${t('staff','🔑','Staff logins & access')}${t('ta','🧑‍🏫','Teacher attendance')}${t('salary','💼','Salary')}</div><p class="mut"><small>Teachers & Staff members: sabki list, profile aur website par dikhana. Staff logins: kisko panel mein kitna access hai.</small></p>`;
+ $('pmain').innerHTML=`<div class="shg" id="hub">${t('teachers','👩‍🏫','Teachers & Staff members')}${t('staff','🔑','Staff logins & access')}</div><p class="mut"><small>Teachers & Staff members: sabki list, profile aur website par dikhana. Staff logins: kisko panel mein kitna access hai.</small></p>`;
  $('hub').onclick=e=>{const b=e.target.closest('button');if(b)openTab(b.dataset.hk,()=>openTab('staffhub'))};
 }
 
@@ -518,6 +695,11 @@ async function profile(type,id){
  let aad=null,trk=[];
  if(stu&&isAdm()){const {data:pv}=await sb.from('student_private').select('aadhaar').eq('student_id',id).maybeSingle();aad=pv?pv.aadhaar:null}
  if(stu&&isTeach()){const {data:tk}=await sb.from('study_tracker').select('*').eq('student_id',id).order('on_date',{ascending:false}).order('created_at',{ascending:false}).limit(200);trk=tk||[]}
+ let votes=[],hist=[];
+ if(stu&&isTeach()){
+  const [vr,hr]=await Promise.all([sb.from('promotion_votes').select('*').eq('student_id',id).eq('class',p.class),sb.from('promotions').select('*').eq('student_id',id).order('created_at',{ascending:false})]);
+  votes=vr.data||[];hist=hr.data||[];
+ }
  const sum=k=>led.filter(x=>x.kind===k).reduce((s,x)=>s+ +x.amount,0);
  const due=sum('charge')-sum('payment')-sum('discount');
  let pool=sum('payment')+sum('discount');const pending=[];
@@ -531,7 +713,20 @@ async function profile(type,id){
  if(stu&&isAdm())h+=`<div style="${card}"><b>🪪 Aadhaar number</b> <small class="mut">(sirf Admin ko dikhta hai)</small><p id="aadtxt" style="font:700 20px var(--f);letter-spacing:.08em;margin:8px 0">${aad?maskA(aad):'— abhi daala nahi —'}</p>${aad?'<p><button id="aadshow">👁 Dikhayein</button></p>':''}<label>${aad?'Naya number (badalne ke liye)':'Aadhaar number (12 ank)'}<input id="aadin" inputmode="numeric" maxlength="14" placeholder="1234 5678 9012"></label><button id="aadsave">Save Aadhaar</button> <span id="aadm" class="msg"></span></div>`;
  if(stu&&isTeach()){
   const sc=trk.filter(x=>x.score!=null).map(x=>+x.score),avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length*10)/10:null,lastL=(trk.find(x=>x.level)||{}).level;
-  h+=`<div style="${card}"><b>📈 Study Tracker</b><div style="margin:8px 0">${lvBadge(lastL)} <span class="mut">${trk.length} entries${avg!=null?' · Average '+avg+'%':''}</span></div>${avg!=null?`<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="width:${Math.min(avg,100)}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--neon))"></div></div>`:''}<div class="f" style="margin-top:12px"><label>Subject<select id="tsub">${SUBJ.map(x=>`<option>${x}</option>`).join('')}</select></label><label>Marks % (optional)<input id="tsc" type="number" min="0" max="100"></label><label>Kaisa padh raha hai<select id="tlv"><option value="">—</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="weak">Weak (extra dhyan chahiye)</option></select></label><label>Date<input id="tdt" type="date" value="${today()}"></label></div><label>Note (kya achha hai, kya kami hai, aage kya karna hai)<textarea id="tnt" rows="3"></textarea></label><button id="tadd">Add to tracker</button> <span id="tem" class="msg"></span><div class="wrap" id="tlist" style="margin-top:12px">${trk.length?`<table><tr><th>Date</th><th>Subject</th><th>Marks</th><th>Level</th><th>Note</th><th></th></tr>${trk.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.subject)}</td><td>${x.score!=null?x.score+'%':''}</td><td>${lvBadge(x.level)}</td><td>${esc(x.note)}</td><td><button class="r" data-td="${x.id}">Delete</button></td></tr>`).join('')}</table>`:'<p class="mut">Abhi koi entry nahi.</p>'}</div></div>`;
+  h+=`<div style="${card}"><b>📈 Study Tracker</b><div style="margin:8px 0">${lvBadge(lastL)} <span class="mut">${trk.length} entries${avg!=null?' · Average '+avg+'%':''}</span></div>${avg!=null?`<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="width:${Math.min(avg,100)}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--neon))"></div></div>`:''}<div class="f" style="margin-top:12px"><label>Subject<select id="tsub">${[...new Set(['General',...subs(p.class),'Behaviour'])].map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>Marks % (optional)<input id="tsc" type="number" min="0" max="100"></label><label>Kaisa padh raha hai<select id="tlv"><option value="">—</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="weak">Weak (extra dhyan chahiye)</option></select></label><label>Date<input id="tdt" type="date" value="${today()}"></label></div><label>Note (kya achha hai, kya kami hai, aage kya karna hai)<textarea id="tnt" rows="3"></textarea></label><button id="tadd">Add to tracker</button> <span id="tem" class="msg"></span><div class="wrap" id="tlist" style="margin-top:12px">${trk.length?`<table><tr><th>Date</th><th>Subject</th><th>Marks</th><th>Level</th><th>Note</th><th></th></tr>${trk.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.subject)}</td><td>${x.score!=null?x.score+'%':''}</td><td>${lvBadge(x.level)}</td><td>${esc(x.note)}</td><td><button class="r" data-td="${x.id}">Delete</button></td></tr>`).join('')}</table>`:'<p class="mut">Abhi koi entry nahi.</p>'}</div></div>`;
+ }
+ if(stu&&isTeach()){
+  const sl=subs(p.class),vm=Object.fromEntries(votes.map(x=>[x.subject,x]));
+  const yes=sl.filter(x=>vm[x]&&vm[x].decision==='yes').length;
+  const eligible=sl.length>0&&yes===sl.length;
+  const ci=CONFIG.classes.indexOf(p.class),nxt=ci>=0&&ci<CONFIG.classes.length-1?CONFIG.classes[ci+1]:null;
+  h+=`<div style="${card}"><b>🚀 Promotion (agle class mein)</b><p class="mut" style="margin:6px 0">Exam se pehle bhi, jab saare subjects ke teachers 'Haan' kahein, bachhe ko agli class mein bheja ja sakta hai.</p><div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="width:${sl.length?Math.round(yes/sl.length*100):0}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--neon))"></div></div><p class="mut" style="margin:6px 0">${yes}/${sl.length} subjects mein Haan</p><div class="wrap"><table><tr><th>Subject</th><th>Decision</th><th>Teacher</th><th></th></tr>${sl.map(x=>{const d=vm[x];return `<tr><td>${esc(x)}</td><td>${d?(d.decision==='yes'?'✅ Haan':'❌ Nahi'):'⏳ Baki'}${d&&d.note?`<br><small class="mut">${esc(d.note)}</small>`:''}</td><td>${esc(d?d.decided_name:'')}</td><td><button data-pv="${esc(x)}" data-d="yes">Haan</button> <button class="r" data-pv="${esc(x)}" data-d="no">Nahi</button></td></tr>`}).join('')}</table></div>`;
+  if(isAdm()&&ci>=0){
+   if(eligible)h+=`<p style="margin-top:12px"><button class="g" id="promo">${nxt?'🚀 Promote to '+classLabel(nxt):'🎓 Passed out karein (school complete)'}</button></p>`;
+   else h+=`<p class="mut" style="margin-top:12px">Sab subjects ke teachers agree nahi hain, isliye Promote abhi nahi ho sakta.</p>`;
+  }
+  if(hist.length)h+=`<h3>Promotion history</h3><div class="wrap"><table><tr><th>Date</th><th>From</th><th>To</th><th>By</th></tr>${hist.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.from_class)}</td><td>${esc(x.to_class)}</td><td>${esc(x.by_name)}</td></tr>`).join('')}</table></div>`;
+  h+=`</div>`;
  }
  if(see){
   h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'var(--red)':'var(--neon)'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
@@ -552,6 +747,20 @@ async function profile(type,id){
    if(error)$('tem').textContent=error.message;else profile(type,id);
   };
   $('tlist').onclick=async e=>{const d=e.target.dataset.td;if(d&&confirm('Ye entry hata dein?')){const {error}=await sb.from('study_tracker').delete().eq('id',d);if(error)alert(error.message);else profile(type,id)}};
+ }
+ if(stu&&isTeach()){
+  document.querySelectorAll('[data-pv]').forEach(b=>b.onclick=async()=>{
+   const dec=b.dataset.d;let note=null;
+   if(dec==='no'){note=prompt('Nahi kehne ki wajah (optional)');if(note===null)return}
+   const {error}=await sb.from('promotion_votes').upsert({student_id:id,class:p.class,subject:b.dataset.pv,decision:dec,note:note||null,decided_name:ME.name||ME.email,decided_by:ME.user_id,updated_at:new Date().toISOString()},{onConflict:'student_id,class,subject'});
+   if(error)alert(error.message);else profile(type,id);
+  });
+  if($('promo'))$('promo').onclick=async()=>{
+   if(!confirm('Is student ko promote karein? Iske baad wo agli class mein dikhega.'))return;
+   const ci=CONFIG.classes.indexOf(p.class),nxt=ci<CONFIG.classes.length-1?CONFIG.classes[ci+1]:null;
+   const {error}=await sb.rpc('promote_student',{sid:id,nxt,note:null,by_name:ME.name||ME.email});
+   if(error)alert(error.message);else{alert('Student promote ho gaya ✓');profile(type,id)}
+  };
  }
  if(stu&&isAdm()){
   if(aad)$('aadshow').onclick=()=>{const t=$('aadtxt'),on=t.dataset.s==='1';t.textContent=on?maskA(aad):fmtA(aad);t.dataset.s=on?'0':'1';$('aadshow').textContent=on?'👁 Dikhayein':'🙈 Chhupayein'};
