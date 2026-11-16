@@ -20,6 +20,7 @@ fees:"Nursery – UKG | ₹ 000 | ₹ 000\nClass 1 – 5 | ₹ 000 | ₹ 000",
 fee_note_hi:"सही शुल्क के लिए स्कूल ऑफिस से संपर्क करें।",
 fee_note_en:"Please contact the school office for exact fees.",
 fee_note_hn:"Sahi fees ke liye school office se sampark karein.",
+grade_scale:"90=A+\n80=A\n70=B+\n60=B\n50=C\n33=D\n0=E",
 address:"Koilabazar, Rajmahal, Jharkhand",
 phone:"+91 00000 00000",
 email:"",
@@ -48,6 +49,7 @@ hours_hn:"Somvaar se Shanivaar, subah 8 baje se dopahar 2 baje tak"};
  F.push(["phone",["फ़ोन नंबर","Phone number","Phone number"]]);
  F.push(["email",["ईमेल (वैकल्पिक)","Email (optional)","Email (optional)"]]);
  F.push(["whatsapp",["WhatsApp नंबर (देश कोड के साथ, जैसे 919876543210; खाली छोड़ें तो फ़ोन नंबर लगेगा)","WhatsApp number (with country code, e.g. 919876543210; leave empty to use the phone number)","WhatsApp number (country code ke saath, jaise 919876543210; khali chhodein to phone number lagega)"]]);
+ F.push(["grade_scale",["ग्रेड स्केल (हर पंक्ति: न्यूनतम%=ग्रेड, जैसे 90=A+)","Grade scale (each line: minimum%=Grade, e.g. 90=A+)","Grade scale (har line: minimum%=Grade, jaise 90=A+)"],'area']);
  trio('hours');
  window.SITE_FIELDS=F;
 })();

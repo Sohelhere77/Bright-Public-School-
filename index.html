@@ -229,7 +229,7 @@ const allowed=k=>{
  if(k==='fees')return lvl('student')!=='none';
  if(k==='salary')return lvl('employee')!=='none';
  if(k==='staffhub'||k==='teachers')return isAdm()||lvl('employee')!=='none';
- if(k==='atthub'||k==='sa')return isTeach();
+ if(k==='atthub'||k==='sa'||k==='examhub'||k==='resulthub')return isTeach();
  if(k==='mgthub')return lvl('student')!=='none'||lvl('employee')!=='none';
  if(k==='students')return isTeach()||lvl('student')!=='none';
  return isAdm()||k==='notices';
@@ -253,12 +253,14 @@ const TABS={
  staffhub:{label:'Staff / कर्मचारी',run:staffHub},
  atthub:{label:'Attendance / उपस्थिति',run:attHub},
  mgthub:{label:'Management / प्रबंधन',run:mgtHub},
+ examhub:{label:'Exams / परीक्षा',run:examHub},
+ resulthub:{label:'Results / परिणाम',run:resultHub},
  fees:{label:'Fees / फीस',run:()=>mgmtList('student')},
  salary:{label:'Salary / वेतन',run:()=>mgmtList('employee')},
  gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photos (ek saath kai chun sakte hain)','photos'],['caption','Caption (optional)']],['url','caption'],'created_at',true)}
 };
 
-const ICON={staffhub:'👥',atthub:'✅',mgthub:'💰',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
+const ICON={examhub:'📝',resulthub:'🏆',staffhub:'👥',atthub:'✅',mgthub:'💰',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
 const setBar=a=>{[['bHome','home'],['bAdm','adm'],['bMenu','panel']].forEach(([id,k])=>$(id).classList.toggle('on',a===k))};
 function showAdm(id){$('site').hidden=true;$('panelView').hidden=true;$('admView').hidden=false;$('sheet').hidden=true;setBar('adm');const el=id&&$(id);if(el)el.scrollIntoView();else window.scrollTo(0,0)}
 function goTo(id){$('sheet').hidden=true;if(id==='admission'||id==='fees'){showAdm(id);return}showSite();const el=$(id);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),40)}
@@ -302,7 +304,7 @@ function openSheet(){
  const web=['site','notices','gallery'].filter(allowed).map(btn).join('');
  const gs=[];if(web)gs.push(['📁 Website',web]);
  gs.push(['📁 Account','<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button>']);
- $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p><div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}${big('atthub','✅','Attendance')}${big('mgthub','💰','Management')}</div>`+foldersHTML(gs);
+ $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p><div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}${big('atthub','✅','Attendance')}${big('mgthub','💰','Management')}${big('examhub','📝','Exams')}${big('resulthub','🏆','Results')}</div>`+foldersHTML(gs);
  $('sheet').hidden=false;
 }
 function openExplore(){
@@ -577,6 +579,297 @@ async function mgtHub(){
  $('mg').onclick=e=>{const x=e.target.closest('button');if(x)openTab(x.dataset.k,()=>openTab('mgthub'))};
 }
 
+/* ---------- Exams, Marks & Results ---------- */
+const GRADE_DEF='90=A+\n80=A\n70=B+\n60=B\n50=C\n33=D\n0=E';
+const gradeFor=p=>{const rows=lines(v('grade_scale')||GRADE_DEF).map(x=>x.split('=')).map(([a,b])=>[+a,(b||'').trim()]).filter(x=>!isNaN(x[0])).sort((a,b)=>b[0]-a[0]);const g=rows.find(q=>p>=q[0]);return g?g[1]:'-'};
+const curSession=()=>{const d=new Date(),y=d.getFullYear(),a=d.getMonth()>=3?y:y-1;return a+'-'+String(a+1).slice(2)};
+const sessList=ex=>{const st=new Set(ex.map(e=>e.session));st.add(curSession());return [...st].sort().reverse()};
+const clsEn=c=>/^\d+$/.test(c)?'Class '+c:c;
+async function loadExams(){const {data}=await sb.from('exams').select('*').order('session',{ascending:false}).order('sort',{ascending:true});return data||[]}
+async function getCfg(examId,cls){
+ const {data}=await sb.from('exam_subjects').select('*').eq('exam_id',examId).eq('class',cls).order('sort');
+ if(data&&data.length)return {rows:data,saved:true};
+ return {rows:subs(cls).map((s,i)=>({subject:s,max_marks:100,pass_marks:33,sort:i})),saved:false};
+}
+async function fetchMarks(examId,ids){const out=[];for(let i=0;i<ids.length;i+=40){const {data}=await sb.from('exam_marks').select('*').eq('exam_id',examId).in('student_id',ids.slice(i,i+40));out.push(...(data||[]))}return out}
+function buildResult(cfg,mm){
+ let tot=0,max=0,pass=true,complete=true;
+ const detail=cfg.map(c=>{
+  const m=mm[c.subject],has=!!m&&(m.absent||m.marks!=null);if(!has)complete=false;
+  const mk=m&&!m.absent&&m.marks!=null?+m.marks:null;
+  max+=+c.max_marks;if(mk!=null)tot+=mk;
+  if((m&&m.absent)||mk==null||mk<+c.pass_marks)pass=false;
+  return {subject:c.subject,max:+c.max_marks,pass:+c.pass_marks,marks:mk,absent:!!(m&&m.absent)};
+ });
+ const pct=max?Math.round(tot/max*10000)/100:0;
+ return {detail,total:tot,max_total:max,percent:pct,grade:gradeFor(pct),result:pass?'pass':'fail',complete};
+}
+const infoOf=s=>({name:s.name,father:s.father_name,mother:s.mother_name,dob:s.dob});
+const resRow=(examId,s,b)=>({exam_id:examId,student_id:s.id,class:s.class,roll:s.roll,info:infoOf(s),detail:b.detail,total:b.total,max_total:b.max_total,percent:b.percent,grade:b.grade,result:b.result,submitted_name:ME.name||ME.email,updated_at:new Date().toISOString()});
+async function rankFor(r){
+ const {data}=await sb.from('results').select('student_id,total').eq('exam_id',r.exam_id).eq('class',r.class);
+ const L2=data||[];const mine=L2.find(x=>x.student_id===r.student_id);
+ return {rank:1+L2.filter(x=>+x.total>+(mine?mine.total:r.total)).length,count:L2.length};
+}
+const rankMap=list=>{const g={};list.forEach(r=>(g[r.exam_id]=g[r.exam_id]||[]).push(r));const out={};Object.values(g).forEach(a=>a.forEach(r=>{out[r.id]={rank:1+a.filter(x=>+x.total>+r.total).length,count:a.length}}));return out};
+
+/* ----- Exams hub ----- */
+function examHub(){
+ const t=(k,ic,l)=>`<button data-hk="${k}"><span>${ic}</span>${l}</button>`;
+ $('pmain').innerHTML=`<div class="shg" id="hub">${t('marks','📝','Marks entry')}${isAdm()?t('setup','⚙️','Exam setup'):''}${t('results','🏆','Results')}</div><p class="mut"><small>Exam setup: kitne exam honge aur har class ke subject aur marks. Marks entry: exam ke baad marks bharkar Submit karein, result ban jayega.</small></p>`;
+ $('hub').onclick=e=>{const b=e.target.closest('button');if(!b)return;const k=b.dataset.hk;if(k==='marks')marksEntry();else if(k==='setup')examSetup();else openTab('resulthub',()=>openTab('examhub'))};
+}
+
+/* ----- Exam setup (Admin) ----- */
+async function examSetup(){
+ setView('Exam setup',()=>openTab('examhub'));
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const ex=await loadExams();
+ pm.innerHTML=`<h3>Naya exam jodein</h3><div class="f"><label>Session<input id="xs" value="${curSession()}"></label><label>Exam ka naam<input id="xn" placeholder="1st Term / Half Yearly / 2nd Term / Final"></label><label>Kram (1, 2, 3...)<input id="xo" type="number" min="1" value="${ex.filter(e=>e.session===curSession()).length+1}"></label></div><button id="xadd">Add exam</button> <span class="msg" id="e"></span><h3>Exams</h3><div class="wrap" id="xl"></div>`;
+ $('xl').innerHTML=ex.length?`<table><tr><th>Session</th><th>Kram</th><th>Exam</th><th></th></tr>${ex.map(e=>`<tr><td>${esc(e.session)}</td><td>${e.sort}</td><td>${esc(e.name)}</td><td><button data-cfg="${e.id}">Subjects & marks</button> <button class="r" data-del="${e.id}">Delete</button></td></tr>`).join('')}</table>`:'<p class="mut">Abhi koi exam nahi.</p>';
+ $('xadd').onclick=async()=>{
+  const session=$('xs').value.trim(),name=$('xn').value.trim(),sort=+$('xo').value||1;
+  if(!session||!name){$('e').textContent='Session aur exam ka naam daalein';return}
+  const {error}=await sb.from('exams').insert({session,name,sort});
+  if(error)$('e').textContent=error.message;else examSetup();
+ };
+ $('xl').onclick=async e=>{
+  const d=e.target.dataset;
+  if(d.cfg)examCfg(ex.find(x=>x.id===d.cfg));
+  else if(d.del&&confirm('Exam hatane se uske marks aur result bhi hat jayenge. Pakka?')){const {error}=await sb.from('exams').delete().eq('id',d.del);if(error)alert(error.message);else examSetup()}
+ };
+}
+async function examCfg(exam,cls){
+ cls=cls||CONFIG.classes[0];
+ setView(exam.name+' · '+exam.session,()=>examSetup());
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const cfg=await getCfg(exam.id,cls);
+ pm.innerHTML=`<div class="f"><label>Class<select id="xc">${CONFIG.classes.map(c=>`<option value="${c}">${classLabel(c)}</option>`).join('')}</select></label></div>${cfg.saved?'':'<p class="mut"><small>Is class ke liye abhi save nahi hua. Neeche default subject hain. Badal kar Save karein.</small></p>'}<div class="wrap"><table id="xt"><tr><th>Subject</th><th>Max marks</th><th>Pass marks</th><th></th></tr></table></div><p><button id="xaddrow">+ Subject</button> <button id="xsave">Save</button> <button class="g" id="xall">Save + sab classes mein copy</button> <span id="e"></span></p>`;
+ $('xc').value=cls;
+ const addRow=(r)=>{const tr=document.createElement('tr');tr.innerHTML=`<td><input class="xs" value="${esc(r.subject||'')}"></td><td><input class="xm" type="number" min="1" value="${r.max_marks??''}"></td><td><input class="xp" type="number" min="0" value="${r.pass_marks??''}"></td><td><button class="r">×</button></td>`;tr.querySelector('button').onclick=()=>tr.remove();$('xt').appendChild(tr)};
+ cfg.rows.forEach(addRow);
+ $('xaddrow').onclick=()=>addRow({max_marks:100,pass_marks:33});
+ $('xc').onchange=()=>examCfg(exam,$('xc').value);
+ const collect=()=>{const rows=[];let bad='';[...$('xt').querySelectorAll('tr')].slice(1).forEach((tr,i)=>{const subject=tr.querySelector('.xs').value.trim(),mx=+tr.querySelector('.xm').value,ps=+tr.querySelector('.xp').value;if(!subject)return;if(!(mx>0)||ps<0||ps>mx)bad=subject;rows.push({exam_id:exam.id,subject,max_marks:mx,pass_marks:ps,sort:i})});return {rows,bad}};
+ const save=async classes=>{
+  const {rows,bad}=collect();
+  if(bad){$('e').className='msg';$('e').textContent='Max/Pass marks galat hain: '+bad;return}
+  if(!rows.length){$('e').className='msg';$('e').textContent='Kam se kam ek subject daalein';return}
+  for(const c of classes){
+   let r=await sb.from('exam_subjects').delete().eq('exam_id',exam.id).eq('class',c);if(r.error){alert(r.error.message);return}
+   r=await sb.from('exam_subjects').insert(rows.map(x=>({...x,class:c})));if(r.error){alert(r.error.message);return}
+  }
+  $('e').className='ok';$('e').textContent='Saved ✓';
+ };
+ $('xsave').onclick=()=>save([$('xc').value]);
+ $('xall').onclick=()=>{if(confirm('Ye subject aur marks sabhi classes mein lagayein? Doosri classes ka purana setup badal jayega.'))save(CONFIG.classes)};
+}
+
+/* ----- Marks entry ----- */
+let mkS={};
+async function marksEntry(){
+ setView('Marks entry',()=>openTab('examhub'));
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const ex=await loadExams();
+ if(!ex.length){pm.innerHTML='<p class="mut">Abhi koi exam set nahi hai. Pehle Admin se Exam setup karwayein.</p>';return}
+ const ses=sessList(ex).filter(s=>ex.some(e=>e.session===s));
+ pm.innerHTML=`<div class="f"><label>Session<select id="ks">${ses.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select></label><label>Exam<select id="ke"></select></label><label>Class<select id="kc">${CONFIG.classes.map(c=>`<option value="${c}">${classLabel(c)}</option>`).join('')}</select></label><label>Subject<select id="kj"></select></label></div><button id="kload">Load students</button><div id="kbox" style="margin-top:14px"></div>`;
+ $('ks').value=ses.includes(mkS.s)?mkS.s:(ses.includes(curSession())?curSession():ses[0]);
+ if(mkS.c)$('kc').value=mkS.c;
+ const fillExams=()=>{const l=ex.filter(e=>e.session===$('ks').value);$('ke').innerHTML=l.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');if(mkS.e&&l.some(e=>e.id===mkS.e))$('ke').value=mkS.e};
+ const fillSubs=async()=>{const id=$('ke').value;if(!id){$('kj').innerHTML='';return}const cfg=await getCfg(id,$('kc').value);$('kj').innerHTML='<option value="*">All subjects (poori class)</option>'+cfg.rows.map(r=>`<option value="${esc(r.subject)}">${esc(r.subject)}</option>`).join('');if(mkS.j&&[...$('kj').options].some(o=>o.value===mkS.j))$('kj').value=mkS.j};
+ fillExams();await fillSubs();
+ $('ks').onchange=async()=>{fillExams();await fillSubs()};
+ $('ke').onchange=fillSubs;$('kc').onchange=fillSubs;
+ $('kload').onclick=()=>kLoad();
+}
+async function kLoad(){
+ const box=$('kbox'),examId=$('ke').value,cls=$('kc').value,sj=$('kj').value;
+ mkS={s:$('ks').value,e:examId,c:cls,j:sj};
+ if(!examId){box.innerHTML='<p class="msg">Exam chunein</p>';return}
+ box.innerHTML='<p class="mut">Loading...</p>';
+ const cfg=await getCfg(examId,cls),cols=sj==='*'?cfg.rows:cfg.rows.filter(r=>r.subject===sj);
+ const {data:st}=await sb.from('students').select('*').eq('class',cls).neq('status','passed_out').order('roll',{ascending:true,nullsFirst:false});
+ const students=st||[];
+ if(!students.length){box.innerHTML='<p class="mut">Is class mein koi student nahi.</p>';return}
+ const mk=await fetchMarks(examId,students.map(s=>s.id)),exist={};mk.forEach(m=>exist[m.student_id+'|'+m.subject]=m);
+ box.innerHTML=`${cfg.saved?'':'<p class="mut"><small>Is class ka exam setup abhi save nahi hua, default subject (100 marks, pass 33) liye gaye hain.</small></p>'}<p class="mut"><small>Marks likhein. Gair-hazir ke liye AB likhein.</small></p><div class="wrap"><table><tr><th>Roll</th><th>Name</th>${cols.map(c=>`<th>${esc(c.subject)}<br><small class="mut">/ ${c.max_marks}</small></th>`).join('')}</tr>${students.map(s=>`<tr><td>${esc(s.roll)}</td><td>${esc(s.name)}</td>${cols.map(c=>{const m=exist[s.id+'|'+c.subject];return `<td><input style="width:84px;margin:0" inputmode="decimal" data-sid="${s.id}" data-sub="${esc(c.subject)}" data-max="${c.max_marks}" value="${m?(m.absent?'AB':(m.marks??'')):''}"></td>`}).join('')}</tr>`).join('')}</table></div><p style="margin-top:12px"><button id="ksave">💾 Save marks</button> <button class="g" id="ksub">✅ Submit & Result banao</button></p><p id="kmsg"></p>`;
+ const ctx={examId,cls,exist,students,cfg};
+ const msg=(t,ok)=>{$('kmsg').className=ok?'ok':'msg';$('kmsg').textContent=t};
+ const save=async()=>{
+  const up=[],del=[];let bad='';
+  box.querySelectorAll('input[data-sid]').forEach(i=>{
+   const sid=i.dataset.sid,sub=i.dataset.sub,mx=+i.dataset.max,val=i.value.trim(),had=ctx.exist[sid+'|'+sub];
+   i.style.borderColor='';
+   if(val===''){if(had)del.push({sid,sub});return}
+   const base={exam_id:examId,student_id:sid,subject:sub,updated_at:new Date().toISOString()};
+   if(/^(ab|a)$/i.test(val)){up.push({...base,marks:null,absent:true});return}
+   const n=+val;if(isNaN(n)||n<0||n>mx){bad=sub;i.style.borderColor='var(--red)';return}
+   up.push({...base,marks:n,absent:false});
+  });
+  if(bad){msg('Kuch marks galat hain (lal dabbe). Marks 0 se '+'max ke beech hone chahiye.');return false}
+  for(let i=0;i<up.length;i+=200){const {error}=await sb.from('exam_marks').upsert(up.slice(i,i+200),{onConflict:'exam_id,student_id,subject'});if(error){msg(error.message);return false}}
+  for(const d of del){await sb.from('exam_marks').delete().eq('exam_id',examId).eq('student_id',d.sid).eq('subject',d.sub)}
+  up.forEach(u=>ctx.exist[u.student_id+'|'+u.subject]=u);del.forEach(d=>delete ctx.exist[d.sid+'|'+d.sub]);
+  return true;
+ };
+ $('ksave').onclick=async()=>{if(await save())msg('Saved ✓',true)};
+ $('ksub').onclick=async()=>{
+  if(!(await save()))return;
+  msg('Result ban raha hai...',true);
+  const all=await fetchMarks(examId,students.map(s=>s.id)),by={};all.forEach(m=>(by[m.student_id]=by[m.student_id]||{})[m.subject]=m);
+  const rows=[],miss=[];
+  students.forEach(s=>{const b=buildResult(cfg.rows,by[s.id]||{});if(b.complete)rows.push(resRow(examId,s,b));else miss.push(s.name)});
+  for(let i=0;i<rows.length;i+=100){const {error}=await sb.from('results').upsert(rows.slice(i,i+100),{onConflict:'exam_id,student_id'});if(error){msg(error.message);return}}
+  msg(`✅ ${rows.length} bachhon ka result ban gaya.${miss.length?' Marks baaki: '+miss.join(', '):''}`,true);
+ };
+}
+
+/* ----- Results ----- */
+async function resultHub(){
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const ex=await loadExams();
+ if(!ex.length){pm.innerHTML='<p class="mut">Abhi koi exam nahi. Pehle Exam setup karein.</p>';return}
+ const ses=sessList(ex).filter(s=>ex.some(e=>e.session===s));
+ pm.innerHTML=`<div class="f"><label>Session<select id="rs">${ses.map(s=>`<option value="${esc(s)}">${esc(s)}</option>`).join('')}</select></label><label>Exam<select id="re"></select></label><label>Class<select id="rc">${CONFIG.classes.map(c=>`<option value="${c}">${classLabel(c)}</option>`).join('')}</select></label><label>Roll no (khali = sabhi)<input id="rr" inputmode="numeric"></label></div><button id="rgo">Dikhayein</button><div id="rbox" style="margin-top:14px"></div>`;
+ const R=window.rsS||(window.rsS={});
+ $('rs').value=ses.includes(R.s)?R.s:(ses.includes(curSession())?curSession():ses[0]);
+ if(R.c)$('rc').value=R.c;
+ const fill=()=>{const l=ex.filter(e=>e.session===$('rs').value);$('re').innerHTML='<option value="*">Sab exams (poora session)</option>'+l.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');if(R.e&&[...$('re').options].some(o=>o.value===R.e))$('re').value=R.e};
+ fill();$('rs').onchange=fill;
+ $('rgo').onclick=()=>rLoad(ex);
+ if(R.e)rLoad(ex);
+}
+async function rLoad(ex){
+ const box=$('rbox'),R=window.rsS;
+ R.s=$('rs').value;R.e=$('re').value;R.c=$('rc').value;
+ const sesEx=ex.filter(e=>e.session===R.s),ids=R.e==='*'?sesEx.map(e=>e.id):[R.e],roll=$('rr').value.trim();
+ box.innerHTML='<p class="mut">Loading...</p>';
+ const {data,error}=await sb.from('results').select('*').in('exam_id',ids).eq('class',R.c).order('roll',{ascending:true,nullsFirst:false});
+ if(error){box.innerHTML=`<p class="msg">${esc(error.message)}</p>`;return}
+ const exm=Object.fromEntries(ex.map(e=>[e.id,e])),rk=rankMap(data||[]);
+ let list=(data||[]).slice().sort((a,b)=>(a.roll??9999)-(b.roll??9999)||exm[a.exam_id].sort-exm[b.exam_id].sort);
+ if(roll)list=list.filter(r=>String(r.roll)===roll);
+ const all=R.e==='*';
+ if(!list.length){box.innerHTML='<p class="mut">Koi result nahi mila. Marks entry mein Submit karne par result banta hai.</p>';return}
+ const items=list.map(r=>({r,exam:exm[r.exam_id],rank:rk[r.id]}));
+ box.innerHTML=`<div class="shg" id="ract"><button data-a="pdf"><span>⬇</span>Marksheets PDF (1 A4 = 2)</button><button data-a="csv"><span>📊</span>Result sheet (CSV)</button></div><p class="mut" id="rmsg" style="margin:8px 0"></p><div class="wrap"><table><tr>${all?'<th>Exam</th>':''}<th>Rank</th><th>Roll</th><th>Name</th><th>Total</th><th>%</th><th>Grade</th><th>Result</th><th></th></tr>${items.map((it,i)=>`<tr>${all?`<td>${esc(it.exam.name)}</td>`:''}<td>${it.rank?it.rank.rank:'-'}</td><td>${esc(it.r.roll)}</td><td>${esc(it.r.info&&it.r.info.name)}</td><td>${it.r.total}/${it.r.max_total}</td><td>${it.r.percent}</td><td>${esc(it.r.grade)}</td><td style="color:${it.r.result==='pass'?'var(--neon)':'var(--red)'}">${it.r.result==='pass'?'PASS':'FAIL'}</td><td><button class="g" data-o="${i}">Open</button> <button data-m="${i}">PDF</button></td></tr>`).join('')}</table></div>`;
+ $('ract').onclick=async e=>{const b=e.target.closest('button');if(!b)return;const m=$('rmsg');
+  try{
+   if(b.dataset.a==='pdf'){await sheetsPdf(items,`marksheets-${clsEn(R.c)}-${R.s}`,m)}
+   else resultCsv(items,`results-${clsEn(R.c)}-${R.s}`);
+  }catch(x){alert(x.message)}
+  m.textContent='';
+ };
+ box.querySelector('table').onclick=async e=>{const d=e.target.dataset;
+  if(d.o!=null){const it=items[+d.o];resultEdit(it.r,it.exam,()=>{setView('Results',()=>openTab('examhub'));resultHub()})}
+  else if(d.m!=null){try{await sheetsPdf([items[+d.m]],'marksheet-'+String(items[+d.m].r.info.name).replace(/\s+/g,'-'),$('rmsg'))}catch(x){alert(x.message)}$('rmsg').textContent=''}
+ };
+}
+async function resultEdit(r,exam,back){
+ setView(r.info&&r.info.name||'Result',back);
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const cfg=await getCfg(r.exam_id,r.class),mk=await fetchMarks(r.exam_id,[r.student_id]),mm=Object.fromEntries(mk.map(x=>[x.subject,x]));
+ const rank=await rankFor(r);
+ pm.innerHTML=`<p class="mut">${esc(exam.name)} · ${esc(exam.session)} · ${classLabel(r.class)} · Roll ${esc(r.roll)}</p><div class="wrap"><table><tr><th>Subject</th><th>Max</th><th>Pass</th><th>Marks</th></tr>${cfg.rows.map(c=>{const m=mm[c.subject];return `<tr><td>${esc(c.subject)}</td><td>${c.max_marks}</td><td>${c.pass_marks}</td><td><input style="width:90px;margin:0" inputmode="decimal" data-sub="${esc(c.subject)}" data-max="${c.max_marks}" value="${m?(m.absent?'AB':(m.marks??'')):''}"></td></tr>`}).join('')}</table></div><label style="margin-top:10px">Remarks<input id="rtr" value="${esc(r.remark||'')}"></label><p><button id="rts">💾 Save & result dobara banao</button> <button data-sl="png">Marksheet (PNG)</button> <button data-sl="pdf">PDF</button> <button class="g" data-sl="share">Share</button>${isAdm()?' <button class="r" id="rtd">Delete result</button>':''}</p><p id="rtm"></p>`;
+ const msg=(t,ok)=>{$('rtm').className=ok?'ok':'msg';$('rtm').textContent=t};
+ $('rts').onclick=async()=>{
+  const up=[],del=[];let bad=false;
+  pm.querySelectorAll('input[data-sub]').forEach(i=>{const sub=i.dataset.sub,mx=+i.dataset.max,val=i.value.trim(),base={exam_id:r.exam_id,student_id:r.student_id,subject:sub,updated_at:new Date().toISOString()};i.style.borderColor='';
+   if(val===''){if(mm[sub])del.push(sub);return}
+   if(/^(ab|a)$/i.test(val)){up.push({...base,marks:null,absent:true});return}
+   const n=+val;if(isNaN(n)||n<0||n>mx){bad=true;i.style.borderColor='var(--red)';return}up.push({...base,marks:n,absent:false})});
+  if(bad){msg('Kuch marks galat hain (lal dabbe).');return}
+  if(up.length){const {error}=await sb.from('exam_marks').upsert(up,{onConflict:'exam_id,student_id,subject'});if(error){msg(error.message);return}}
+  for(const sub of del)await sb.from('exam_marks').delete().eq('exam_id',r.exam_id).eq('student_id',r.student_id).eq('subject',sub);
+  const nm={};up.forEach(u=>nm[u.subject]=u);Object.keys(mm).forEach(k=>{if(!del.includes(k)&&!nm[k])nm[k]=mm[k]});
+  const b=buildResult(cfg.rows,nm);
+  if(!b.complete){msg('Sab subjects ke marks bharein.');return}
+  const {error}=await sb.from('results').update({detail:b.detail,total:b.total,max_total:b.max_total,percent:b.percent,grade:b.grade,result:b.result,remark:$('rtr').value.trim()||null,submitted_name:ME.name||ME.email,updated_at:new Date().toISOString()}).eq('id',r.id);
+  if(error){msg(error.message);return}
+  const {data}=await sb.from('results').select('*').eq('id',r.id).single();
+  msg('Saved ✓',true);setTimeout(()=>resultEdit(data,exam,back),600);
+ };
+ pm.querySelectorAll('[data-sl]').forEach(b=>b.onclick=async()=>{try{await sheetAct(b.dataset.sl,{r,exam,rank},$('rtm'))}catch(x){alert(x.message)}});
+ if($('rtd'))$('rtd').onclick=async()=>{if(!confirm('Is bachhe ka result hata dein? (Marks bache rahenge)'))return;const {error}=await sb.from('results').delete().eq('id',r.id);if(error)alert(error.message);else back()};
+}
+
+/* ----- Marksheet (half A4: 210 x 148.5 mm) ----- */
+async function marksheetCanvas(r,exam,rank){
+ try{await document.fonts.load('700 28px "Noto Sans Devanagari"');await document.fonts.load('700 28px "Plus Jakarta Sans"')}catch(e){}
+ const W=1400,H=990,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const F=(w,s)=>`${w} ${s}px "Plus Jakarta Sans","Noto Sans Devanagari",sans-serif`;
+ const info=r.info||{},det=r.detail||[],DK='#2B1B14',GR='#6B5B50';
+ x.fillStyle='#fff';x.fillRect(0,0,W,H);
+ x.strokeStyle=DK;x.lineWidth=5;x.strokeRect(14,14,W-28,H-28);x.strokeStyle='#C9A24B';x.lineWidth=2;x.strokeRect(24,24,W-48,H-48);
+ const lg=await new Promise(rs=>{const i=new Image();i.onload=()=>rs(i);i.onerror=()=>rs(null);i.src='logo.png'});
+ if(lg){const sz=104,ar=lg.width/lg.height;x.drawImage(lg,52,40,sz*ar,sz)}
+ x.textAlign='center';x.fillStyle=DK;x.font=F(800,44);x.fillText(v('school_name'),W/2,92);
+ x.fillStyle=GR;x.font=F(500,21);x.fillText(v('address')+(v('phone')?' · '+v('phone'):''),W/2,126);
+ x.fillStyle=DK;x.fillRect(40,150,W-80,46);x.fillStyle='#fff';x.font=F(700,24);
+ x.fillText(`PROGRESS REPORT · अंक पत्र   |   ${exam.name} · ${exam.session}`,W/2,182);
+ x.textAlign='left';
+ const rows=[[['Name / नाम',info.name],['Class / कक्षा',clsEn(r.class)]],[['Roll No / रोल नं.',r.roll],['Date of Birth / जन्म तिथि',fmt(info.dob)]],[["Father's Name / पिता का नाम",info.father],["Mother's Name / माता का नाम",info.mother]]];
+ let y=232;rows.forEach(rw=>{rw.forEach(([a,b],i)=>{const bx=i?W/2+20:56;x.fillStyle=GR;x.font=F(500,18);x.fillText(a,bx,y-8);x.fillStyle=DK;x.font=F(700,24);x.fillText(String(b==null||b===''?'-':b),bx,y+20)});y+=58});
+ const ty=385,tx=48,tw=W-96,N=Math.max(det.length,1),rowH=Math.min(40,Math.floor(265/N));
+ const cw=[.40,.14,.14,.18,.14].map(f=>Math.round(f*tw)),cx=[tx];cw.forEach((w,i)=>cx.push(cx[i]+w));
+ const heads=['Subject / विषय','Max / पूर्णांक','Pass / उत्तीर्णांक','Obtained / प्राप्तांक','Grade / ग्रेड'];
+ x.fillStyle='#E9DFC9';x.fillRect(tx,ty,tw,38);x.fillStyle=DK;x.font=F(700,18);
+ heads.forEach((h,i)=>{x.textAlign=i?'center':'left';x.fillText(h,i?cx[i]+cw[i]/2:cx[i]+12,ty+26)});
+ let yy=ty+38;
+ det.forEach(d=>{
+  x.strokeStyle='#D9CFBE';x.lineWidth=1;x.beginPath();x.moveTo(tx,yy+rowH);x.lineTo(tx+tw,yy+rowH);x.stroke();
+  const fail=d.absent||d.marks==null||d.marks<d.pass;
+  x.fillStyle=DK;x.font=F(600,21);x.textAlign='left';x.fillText(d.subject,cx[0]+12,yy+rowH/2+7);
+  x.textAlign='center';x.fillText(d.max,cx[1]+cw[1]/2,yy+rowH/2+7);x.fillText(d.pass,cx[2]+cw[2]/2,yy+rowH/2+7);
+  x.fillStyle=fail?'#B3261E':DK;x.font=F(700,22);x.fillText(d.absent?'AB':(d.marks==null?'-':d.marks),cx[3]+cw[3]/2,yy+rowH/2+7);
+  x.fillStyle=DK;x.font=F(600,21);x.fillText(d.absent||d.marks==null?'-':gradeFor(d.max?d.marks/d.max*100:0),cx[4]+cw[4]/2,yy+rowH/2+7);
+  yy+=rowH;
+ });
+ x.fillStyle='#F5EFE0';x.fillRect(tx,yy,tw,40);x.fillStyle=DK;x.font=F(800,22);x.textAlign='left';x.fillText('Total / कुल',cx[0]+12,yy+28);
+ x.textAlign='center';x.fillText(r.max_total,cx[1]+cw[1]/2,yy+28);x.fillText(r.total,cx[3]+cw[3]/2,yy+28);
+ x.strokeStyle=DK;x.lineWidth=2;x.strokeRect(tx,ty,tw,yy+40-ty);
+ const sy=yy+86,bw=(tw-30)/4,pass=r.result==='pass';
+ const boxes=[['Percentage / प्रतिशत',(+r.percent).toFixed(2)+'%',DK],['Grade / ग्रेड',r.grade||'-',DK],['Rank / रैंक',rank?`${rank.rank} / ${rank.count}`:'-',DK],['Result / परिणाम',pass?'PASS / उत्तीर्ण':'FAIL / अनुत्तीर्ण',pass?'#1B6B3A':'#B3261E']];
+ boxes.forEach(([a,b,col],i)=>{const bx=tx+i*(bw+10);x.strokeStyle=DK;x.lineWidth=1.5;x.strokeRect(bx,sy-34,bw,64);x.fillStyle=GR;x.font=F(500,16);x.textAlign='center';x.fillText(a,bx+bw/2,sy-14);x.fillStyle=col;x.font=F(800,26);x.fillText(b,bx+bw/2,sy+18)});
+ x.textAlign='left';x.fillStyle=GR;x.font=F(500,20);x.fillText('Remarks / टिप्पणी: '+(r.remark||''),tx,sy+62);
+ x.fillStyle=GR;x.font=F(500,19);x.fillText('Date: '+fmt(today()),56,H-96);
+ x.strokeStyle=DK;x.lineWidth=1.5;x.textAlign='center';
+ [[200,'Class Teacher / कक्षा अध्यापक'],[W/2,"Parent's Sign / अभिभावक"],[W-200,'Principal / प्रधानाचार्य']].forEach(([cx2,t])=>{x.beginPath();x.moveTo(cx2-150,H-78);x.lineTo(cx2+150,H-78);x.stroke();x.fillStyle=DK;x.font=F(600,19);x.fillText(t,cx2,H-50)});
+ return c;
+}
+async function sheetsPdf(items,name,msgEl){
+ await loadJsPdf();const {jsPDF}=window.jspdf;
+ const doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'}),imgs=[];
+ for(let i=0;i<items.length;i++){
+  if(msgEl)msgEl.textContent=`Marksheet ban rahi hai (${i+1}/${items.length})...`;
+  const cv=await marksheetCanvas(items[i].r,items[i].exam,items[i].rank);imgs.push(cv.toDataURL('image/jpeg',.92));
+ }
+ for(let i=0;i<imgs.length;i+=2){
+  if(i)doc.addPage();
+  doc.addImage(imgs[i],'JPEG',0,0,210,148.5);
+  if(imgs[i+1])doc.addImage(imgs[i+1],'JPEG',0,148.5,210,148.5);
+  doc.setDrawColor(150);doc.setLineDashPattern([2,2],0);doc.line(4,148.5,206,148.5);doc.setLineDashPattern([],0);
+ }
+ doc.save(name+'.pdf');
+}
+async function sheetAct(kind,it,msgEl){
+ const name='marksheet-'+String(it.r.info&&it.r.info.name||'student').replace(/\s+/g,'-');
+ if(kind==='pdf'){await sheetsPdf([it],name,msgEl);if(msgEl)msgEl.textContent='';return}
+ const cv=await marksheetCanvas(it.r,it.exam,it.rank),blob=await new Promise(rs=>cv.toBlob(rs,'image/png'));
+ const dl=(b,n)=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=n;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)};
+ if(kind==='png')dl(blob,name+'.png');
+ else{const f=new File([blob],name+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f],title:name});else dl(blob,name+'.png')}
+}
+function resultCsv(items,name){
+ const subj=[];items.forEach(it=>(it.r.detail||[]).forEach(d=>{if(!subj.includes(d.subject))subj.push(d.subject)}));
+ const q=t=>'"'+String(t==null?'':t).replace(/"/g,'""')+'"';
+ const head=['Session','Exam','Class','Roll','Name','Father','Mother',...subj,'Total','Max','Percent','Grade','Result','Rank','Remark'];
+ const rows=items.map(it=>{const r=it.r,dm=Object.fromEntries((r.detail||[]).map(d=>[d.subject,d]));return [it.exam.session,it.exam.name,clsEn(r.class),r.roll,r.info&&r.info.name,r.info&&r.info.father,r.info&&r.info.mother,...subj.map(s=>dm[s]?(dm[s].absent?'AB':dm[s].marks):''),r.total,r.max_total,r.percent,r.grade,r.result==='pass'?'PASS':'FAIL',it.rank?it.rank.rank+'/'+it.rank.count:'',r.remark||'']});
+ const csv='\ufeff'+[head,...rows].map(a=>a.map(q).join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';document.body.appendChild(a);a.click();a.remove();
+}
+
 /* ---------- Students hub (class-wise) / Staff hub / Study tracker ---------- */
 const classLabel=c=>{const n=/^\d+$/.test(c);if(L==='hi')return n?'कक्षा '+c:({Nursery:'नर्सरी',LKG:'एलकेजी',UKG:'यूकेजी'}[c]||c);return n?'Class '+c:c};
 const SUBJ=['General','Hindi','English','Maths','EVS / Science','GK','Computer','Drawing','Rhymes / Oral','Behaviour'];
@@ -700,6 +993,8 @@ async function profile(type,id){
  let aad=null,trk=[];
  if(stu&&isAdm()){const {data:pv}=await sb.from('student_private').select('aadhaar').eq('student_id',id).maybeSingle();aad=pv?pv.aadhaar:null}
  if(stu&&isTeach()){const {data:tk}=await sb.from('study_tracker').select('*').eq('student_id',id).order('on_date',{ascending:false}).order('created_at',{ascending:false}).limit(200);trk=tk||[]}
+ let rsl=[],exm2={};
+ if(stu&&isTeach()){const [rr,ee]=await Promise.all([sb.from('results').select('*').eq('student_id',id),loadExams()]);rsl=rr.data||[];exm2=Object.fromEntries(ee.map(e=>[e.id,e]))}
  let votes=[],hist=[];
  if(stu&&isTeach()){
   const [vr,hr]=await Promise.all([sb.from('promotion_votes').select('*').eq('student_id',id).eq('class',p.class),sb.from('promotions').select('*').eq('student_id',id).order('created_at',{ascending:false})]);
@@ -733,6 +1028,7 @@ async function profile(type,id){
   if(hist.length)h+=`<h3>Promotion history</h3><div class="wrap"><table><tr><th>Date</th><th>From</th><th>To</th><th>By</th></tr>${hist.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.from_class)}</td><td>${esc(x.to_class)}</td><td>${esc(x.by_name)}</td></tr>`).join('')}</table></div>`;
   h+=`</div>`;
  }
+ if(stu&&isTeach()&&rsl.length)h+=`<div style="${card}"><b>🏆 Results</b><div class="wrap"><table><tr><th>Exam</th><th>Session</th><th>Class</th><th>%</th><th>Grade</th><th>Result</th><th></th></tr>${rsl.map((r,i)=>`<tr><td>${esc(exm2[r.exam_id]?exm2[r.exam_id].name:'')}</td><td>${esc(exm2[r.exam_id]?exm2[r.exam_id].session:'')}</td><td>${esc(clsEn(r.class))}</td><td>${r.percent}</td><td>${esc(r.grade)}</td><td style="color:${r.result==='pass'?'var(--neon)':'var(--red)'}">${r.result==='pass'?'PASS':'FAIL'}</td><td><button data-rs="${i}">PDF</button></td></tr>`).join('')}</table></div></div>`;
  if(see){
   h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'var(--red)':'var(--neon)'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
   if(pending.length)h+=`<p style="margin:10px 0 0"><b>Pending:</b></p><table>${pending.map(r=>`<tr><td>${esc(r.label)}</td><td>${money(r.amt)}</td></tr>`).join('')}</table>`;
@@ -767,6 +1063,7 @@ async function profile(type,id){
    if(error)alert(error.message);else{alert('Student promote ho gaya ✓');profile(type,id)}
   };
  }
+ if(stu&&isTeach()&&rsl.length)document.querySelectorAll('[data-rs]').forEach(b=>b.onclick=async()=>{try{const r=rsl[+b.dataset.rs];await sheetAct('pdf',{r,exam:exm2[r.exam_id],rank:await rankFor(r)},null)}catch(x){alert(x.message)}});
  if(stu&&isAdm()){
   if(aad)$('aadshow').onclick=()=>{const t=$('aadtxt'),on=t.dataset.s==='1';t.textContent=on?maskA(aad):fmtA(aad);t.dataset.s=on?'0':'1';$('aadshow').textContent=on?'👁 Dikhayein':'🙈 Chhupayein'};
   $('aadsave').onclick=async()=>{
