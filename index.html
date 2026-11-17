@@ -104,6 +104,25 @@ button.btn{border:0;cursor:pointer}
 .card.pri{grid-column:1/-1;border-color:var(--gold);border-left-color:var(--gold);box-shadow:0 0 18px rgba(245,183,0,.15)}
 .card.pri img{max-width:280px}
 .role{display:inline-block;background:var(--gold);color:#1a1300;font:700 13px var(--f);letter-spacing:.08em;text-transform:uppercase;padding:2px 10px;margin-bottom:6px}
+.slw{position:relative}
+.slider{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;padding:2px 2px 12px;scrollbar-width:thin;scrollbar-color:var(--neon) var(--surface2)}
+.slider>*{flex:0 0 min(86%,360px);scroll-snap-align:start;margin:0}
+ul.chips.slider{display:flex}
+ul.chips.slider>li{flex-basis:min(70%,230px)}
+#gal>figure{flex-basis:min(94%,560px)}
+#gal figure img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:6px;border:1px solid var(--line);display:block}
+#gal figcaption{color:var(--mut);font-size:14px;padding:6px 2px}
+.slider .n{max-width:none}
+.slider .card.pri{flex-basis:min(92%,420px)}
+.arw{position:absolute;top:40%;z-index:2;width:38px;height:38px;border-radius:50%;border:1px solid var(--neon);background:rgba(10,17,13,.85);color:var(--neon);font:700 22px/1 var(--f);cursor:pointer;display:none}
+.arw.l{left:-6px}.arw.r{right:-6px}
+@media(hover:hover) and (pointer:fine){.arw{display:block}}
+.cnt{position:absolute;right:8px;top:8px;background:rgba(0,0,0,.65);color:#fff;padding:2px 10px;border-radius:12px;font:600 13px var(--f);z-index:2}
+.cnt[hidden]{display:none}
+#panelView label[hidden]{display:none}
+.ptabs{display:flex;gap:6px;overflow-x:auto;margin:12px 0;padding-bottom:4px}
+#panelView .ptabs button{background:var(--surface2);border:1px solid var(--line);color:var(--ink);white-space:nowrap;border-radius:20px}
+#panelView .ptabs button.on{background:var(--gold);color:#1a1300;border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -121,10 +140,10 @@ button.btn{border:0;cursor:pointer}
 </div>
 </div></div>
 <section id="about"><div class="w"><h2 data-i="nav_about"></h2><p data-s="about" style="white-space:pre-line;max-width:60ch"></p></div></section>
-<section id="facSec" class="alt"><div class="w"><h2 id="facilities" data-i="nav_fac"></h2><ul class="chips" id="fac"></ul></div></section>
-<section id="teachers"><div class="w"><h2 data-i="nav_tch"></h2><div class="grid" id="tch"></div></div></section>
-<section id="gallery" class="alt"><div class="w"><h2 data-i="nav_gal"></h2><div class="gal" id="gal"></div></div></section>
-<section id="notices"><div class="w"><h2 data-i="nav_not"></h2><div id="not"></div></div></section>
+<section id="facSec" class="alt"><div class="w"><h2 id="facilities" data-i="nav_fac"></h2><ul class="chips slider" id="fac"></ul></div></section>
+<section id="teachers"><div class="w"><h2 data-i="nav_tch"></h2><div class="slider" id="tch"></div></div></section>
+<section id="gallery" class="alt"><div class="w"><h2 data-i="nav_gal"></h2><div class="slider" id="gal"></div></div></section>
+<section id="notices"><div class="w"><h2 data-i="nav_not"></h2><div class="slider" id="not"></div></div></section>
 <section id="contact" class="alt"><div class="w"><h2 data-i="nav_con"></h2>
 <p><b data-i="addr_l"></b><br><span id="addr"></span></p>
 <p><b data-i="ph_l"></b><br><a id="ph"></a></p>
@@ -206,7 +225,7 @@ function paint(){
  const rk=q=>q==='Principal'?0:q==='Vice Principal'?1:2;
  const POSTL={Principal:['प्रधानाचार्य','Principal','Principal'],'Vice Principal':['उप-प्रधानाचार्य','Vice Principal','Vice Principal'],Clerk:['क्लर्क','Clerk','Clerk'],Peon:['चपरासी','Peon','Peon'],Driver:['ड्राइवर','Driver','Driver'],Other:['अन्य','Other','Other']};
  $('tch').innerHTML=[...(D.t||[])].sort((a,b)=>rk(a.post)-rk(b.post)).map(x=>`<div class="card${rk(x.post)===0?' pri':''}">${x.photo_url?`<img src="${esc(x.photo_url)}" alt="">`:''}${POSTL[x.post]?`<div class="role">${esc(POSTL[x.post][IL()])}</div>`:''}<h3>${esc(x.name)}</h3><small>${esc(x.subject)}${x.qualification?' · '+esc(x.qualification):''}</small></div>`).join('')||none;
- $('gal').innerHTML=(D.g||[]).map(x=>`<img src="${esc(x.url)}" alt="${esc(x.caption)}">`).join('')||none;
+ $('gal').innerHTML=(D.g||[]).map(x=>`<figure><img src="${esc(x.url)}" alt="${esc(x.caption)}" loading="lazy">${x.caption?`<figcaption>${esc(x.caption)}</figcaption>`:''}</figure>`).join('')||none;
  $('not').innerHTML=(D.n||[]).map((x,i)=>`<div class="n"><time>${esc(x.date)}</time><b>${esc(x.title)}</b><span class="mut" style="white-space:pre-line">${esc(x.body)}</span><button class="spk" data-say="${i}">${T[L].say}</button></div>`).join('')||none;
  if(typeof ME!=='undefined')barLabel();
 }
@@ -563,8 +582,24 @@ function subjectsView(cls){
   S['subjects_'+cls]=val;$('e').className='ok';$('e').textContent='Saved ✓';
  };
 }
-function attHub(){
- $('pmain').innerHTML=`<h3>📁 Students</h3><div class="shg" id="ac">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}</span></button>`).join('')}</div>${isAdm()?`<h3>📁 Staff</h3><div class="shg" id="at"><button><span>🧑‍🏫</span>Teacher attendance</button></div>`:''}`;
+async function attHub(){
+ const pm=$('pmain');pm.innerHTML='<p class="mut">Loading...</p>';
+ const {data:ld}=await sb.from('student_attendance').select('date').lt('date',today()).order('date',{ascending:false}).limit(1);
+ const d0=ld&&ld[0]?ld[0].date:today();
+ const box='background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px';
+ pm.innerHTML=`<div style="${box}"><b>📅 Pichhla attendance</b><div class="f" style="margin-top:8px"><label>Date<input id="ad" type="date" value="${d0}"></label></div><div id="abox" class="mut">Loading...</div></div><h3>📁 Students</h3><div class="shg" id="ac">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}</span></button>`).join('')}</div>${isAdm()?`<h3>📁 Staff</h3><div class="shg" id="at"><button><span>🧑‍🏫</span>Teacher attendance</button></div>`:''}`;
+ const loadDay=async d=>{
+  $('abox').innerHTML='Loading...';
+  const [a,s,ab]=await Promise.all([sb.from('student_attendance').select('student_id,status').eq('date',d),sb.from('students').select('id,class').neq('status','passed_out'),sb.rpc('absent_streaks',{d})]);
+  if(a.error){$('abox').innerHTML=`<span class="msg">${esc(a.error.message)}</span>`;return}
+  if(!(a.data||[]).length){$('abox').innerHTML='<span class="mut">Is din ki attendance nahi bhari gayi.</span>';return}
+  const cls={},cnt={};(s.data||[]).forEach(x=>{cls[x.id]=x.class;(cnt[x.class]=cnt[x.class]||{T:0,P:0,A:0,L:0}).T++});
+  (a.data||[]).forEach(x=>{const c=cls[x.student_id];if(c&&cnt[c])cnt[c][x.status]=(cnt[c][x.status]||0)+1});
+  const keys=CONFIG.classes.filter(c=>cnt[c]);
+  const ablist=ab.error?[]:(ab.data||[]);
+  $('abox').innerHTML=`<div class="wrap"><table><tr><th>Class</th><th>Present</th><th>Absent</th><th>Leave</th><th>Nahi bhari</th></tr>${keys.map(c=>{const k=cnt[c];return `<tr><td>${classLabel(c)}</td><td>${k.P}</td><td style="color:${k.A?'var(--red)':'inherit'}">${k.A}</td><td>${k.L}</td><td>${Math.max(k.T-k.P-k.A-k.L,0)}</td></tr>`}).join('')}</table></div><p style="margin:14px 0 6px"><b>Gair-hazir bachhe</b></p>${ab.error?`<span class="msg">${esc(ab.error.message)}</span>`:(ablist.length?`<div class="wrap"><table><tr><th>Class</th><th>Roll</th><th>Name</th><th>Kitne din se absent</th><th>Aakhri baar aaya</th><th></th></tr>${ablist.map(r=>`<tr><td>${classLabel(r.class)}</td><td>${esc(r.roll)}</td><td>${esc(r.name)}</td><td style="color:${r.streak>=3?'var(--red)':'var(--gold)'};font-weight:600">${r.streak} din</td><td>${r.last_present?fmt(r.last_present):'—'}</td><td>${r.phone?`<a href="tel:${esc(r.phone)}" style="color:var(--neon);text-decoration:none">📞</a>`:''}</td></tr>`).join('')}</table></div>`:'<span class="ok">Is din koi gair-hazir nahi 🎉</span>')}`;
+ };
+ $('ad').onchange=()=>loadDay($('ad').value);loadDay(d0);
  $('ac').onclick=e=>{const b=e.target.closest('button');if(!b)return;const c=b.dataset.c;setView('Attendance · '+classLabel(c),()=>openTab('atthub'));attendance('students','student_attendance','student_id',true,c)};
  if(isAdm())$('at').onclick=()=>openTab('ta',()=>openTab('atthub'));
 }
@@ -575,8 +610,8 @@ async function mgtHub(){
  const none=Promise.resolve({data:[]});
  const [a,b]=await Promise.all([sf?sb.rpc('balances',{t:'student'}):none,ss?sb.rpc('balances',{t:'employee'}):none]);
  const tot=r=>(r.data||[]).reduce((s,x)=>s+Math.max((+x.charged||0)-(+x.paid||0)-(+x.discounted||0),0),0);
- pm.innerHTML=`<div class="shg" id="mg">${sf?`<button data-k="fees"><span>💰</span><span>Fees<br><small class="mut">Baki: ${money(tot(a))}</small></span></button>`:''}${ss?`<button data-k="salary"><span>💼</span><span>Salary<br><small class="mut">Baki: ${money(tot(b))}</small></span></button>`:''}</div>`;
- $('mg').onclick=e=>{const x=e.target.closest('button');if(x)openTab(x.dataset.k,()=>openTab('mgthub'))};
+ pm.innerHTML=`<div class="shg" id="mg">${sf?`<button data-k="fees"><span>💰</span><span>Fees<br><small class="mut">Baki: ${money(tot(a))}</small></span></button>`:''}${ss?`<button data-k="salary"><span>💼</span><span>Salary<br><small class="mut">Baki: ${money(tot(b))}</small></span></button>`:''}<button data-k="report"><span>📊</span>Report</button></div>`;
+ $('mg').onclick=e=>{const x=e.target.closest('button');if(!x)return;if(x.dataset.k==='report')reportView();else openTab(x.dataset.k,()=>openTab('mgthub'))};
 }
 
 /* ---------- Exams, Marks & Results ---------- */
@@ -870,6 +905,55 @@ function resultCsv(items,name){
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=name+'.csv';document.body.appendChild(a);a.click();a.remove();
 }
 
+async function rollClash(cls,roll,exceptId){
+ let q=sb.from('students').select('id,name').eq('class',cls).eq('roll',roll).neq('status','passed_out').limit(1);
+ if(exceptId)q=q.neq('id',exceptId);
+ const {data}=await q;return data&&data[0]?data[0].name:'';
+}
+const friendlyErr=e=>(e&&(e.code==='23505'||/students_class_roll_uq/.test(e.message||'')))?'Ye roll no is class mein pehle se kisi aur ka hai.':(e&&e.message)||String(e);
+async function reportView(){
+ setView('Monthly report',()=>openTab('mgthub'));
+ const pm=$('pmain'),P=window.rpS||(window.rpS={n:'cm'});
+ const hasF=allowed('fees'),hasS=allowed('salary');
+ const opts=['<option value="1w">1 hafta</option>','<option value="cm">Is mahina (1 tarikh se)</option>','<option value="pm">Pichhla mahina (poora)</option>',...[1,2,3,4,5,6,7,8,9,10,11,12].map(n=>`<option value="${n}m">${n} mahine</option>`),'<option value="c">Custom (date se date)</option>'].join('');
+ pm.innerHTML=`<div class="f"><label>Kiska report<select id="pt">${hasF?'<option value="student">Student fees</option>':''}${hasS?'<option value="employee">Staff salary</option>':''}</select></label><label>Samay<select id="pn">${opts}</select></label><label>Aakhri tarikh<input id="pe" type="date" value="${today()}"></label><label id="pcl" hidden>Shuru tarikh<input id="ps" type="date" value="${today()}"></label></div><button id="pgo">Report dikhayein</button> <button class="g" id="pcsv" hidden>⬇ CSV</button><div id="pbox" style="margin-top:14px"></div>`;
+ $('pn').value=P.n;
+ const sync=()=>{$('pcl').hidden=$('pn').value!=='c'};sync();$('pn').onchange=sync;
+ const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10);
+ const addM=(d,k)=>{const x=new Date(d.getFullYear(),d.getMonth()+k,1,12),dim=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();x.setDate(Math.min(d.getDate(),dim));return x};
+ const range=()=>{
+  const n=$('pn').value,e=new Date($('pe').value+'T12:00:00');let s,en=e;
+  if(n==='1w'){s=new Date(e);s.setDate(s.getDate()-6)}
+  else if(n==='cm'){s=new Date(e.getFullYear(),e.getMonth(),1,12)}
+  else if(n==='pm'){s=new Date(e.getFullYear(),e.getMonth()-1,1,12);en=new Date(e.getFullYear(),e.getMonth(),0,12)}
+  else if(n==='c'){s=new Date($('ps').value+'T12:00:00')}
+  else{s=addM(e,-parseInt(n,10));s.setDate(s.getDate()+1)}
+  return [iso(s),iso(en)];
+ };
+ let last=null;
+ $('pgo').onclick=async()=>{
+  P.n=$('pn').value;const t=$('pt').value,stu=t==='student',[d1,d2]=range();
+  if(!$('pe').value||d1>d2){alert('Shuru tarikh aakhri tarikh se pehle honi chahiye');return}
+  $('pbox').innerHTML='<p class="mut">Loading...</p>';
+  await sb.rpc('run_accrual');
+  const {data,error}=await sb.rpc('ledger_report',{t,d1,d2});
+  if(error){$('pbox').innerHTML=`<p class="msg">${esc(error.message)}</p>`;return}
+  const rows=data||[],sum=k=>rows.reduce((s,r)=>s+(+r[k]||0),0);
+  const o=sum('opening'),c=sum('charged'),r=sum('received'),dc=sum('discounted'),cl=sum('closing');
+  const due0=o+c-dc,pct=due0>0?Math.round(r/due0*1000)/10:0;
+  const cd=(l,val,col)=>`<div style="background:var(--surface);border:1px solid var(--line);border-top:3px solid ${col};border-radius:8px;padding:12px"><small class="mut">${l}</small><div style="font:800 22px var(--f)">${val}</div></div>`;
+  $('pbox').innerHTML=`<p class="mut">${fmt(d1)} → ${fmt(d2)}</p><div class="shg">${cd('Pichhla baki (shuru mein)',money(o),'var(--gold)')}${cd('Total hue (is samay mein)',money(c),'var(--gold)')}${cd(stu?'Fees mili':'Salary diya',money(r),'var(--neon)')}${cd(stu?'Discount':'Deduction',money(dc),'var(--line)')}${cd('Abhi baki (aakhir mein)',money(cl),'var(--red)')}${cd('Wasooli %',pct+'%','var(--neon)')}</div><div class="wrap" style="margin-top:14px"><table><tr><th>${stu?'Class':'Post'}</th><th>Pichhla baki</th><th>Total hue</th><th>${stu?'Mili':'Diya'}</th><th>${stu?'Discount':'Deduction'}</th><th>Baki</th></tr>${rows.map(x=>`<tr><td>${stu?classLabel(x.grp):esc(x.grp)}</td><td>${money(x.opening)}</td><td>${money(x.charged)}</td><td>${money(x.received)}</td><td>${money(x.discounted)}</td><td>${money(x.closing)}</td></tr>`).join('')}<tr><th>Total</th><th>${money(o)}</th><th>${money(c)}</th><th>${money(r)}</th><th>${money(dc)}</th><th>${money(cl)}</th></tr></table></div>`;
+  last={rows,d1,d2,stu,sum:[o,c,r,dc,cl]};$('pcsv').hidden=false;
+ };
+ $('pcsv').onclick=()=>{
+  if(!last)return;const q=x=>'"'+String(x==null?'':x).replace(/"/g,'""')+'"';
+  const head=[last.stu?'Class':'Post','Opening pending','Total charged',last.stu?'Received':'Paid',last.stu?'Discount':'Deduction','Closing pending'];
+  const body=last.rows.map(x=>[x.grp,x.opening,x.charged,x.received,x.discounted,x.closing]);
+  body.push(['Total',...last.sum]);
+  const csv='\ufeff'+[['From',last.d1,'To',last.d2],head,...body].map(a=>a.map(q).join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`report-${last.stu?'fees':'salary'}-${last.d1}-to-${last.d2}.csv`;document.body.appendChild(a);a.click();a.remove();
+ };
+}
 /* ---------- Students hub (class-wise) / Staff hub / Study tracker ---------- */
 const classLabel=c=>{const n=/^\d+$/.test(c);if(L==='hi')return n?'कक्षा '+c:({Nursery:'नर्सरी',LKG:'एलकेजी',UKG:'यूकेजी'}[c]||c);return n?'Class '+c:c};
 const SUBJ=['General','Hindi','English','Maths','EVS / Science','GK','Computer','Drawing','Rhymes / Oral','Behaviour'];
@@ -929,6 +1013,8 @@ function addStudentView(cls){
  setView('Add student',()=>cls?classPage(cls):openTab('students'));
  $('pmain').innerHTML=`<div class="f">${STU_F.map(f=>inp(f,'a_')).join('')}</div><label>Aadhaar number (optional · sirf Admin ko dikhega)<input id="a_aad" inputmode="numeric" maxlength="14" placeholder="1234 5678 9012"></label><button id="asv">Add student</button> <span class="msg" id="e"></span>`;
  if(cls)$('a_class').value=cls;
+ const sug=async()=>{const {data}=await sb.from('students').select('roll').eq('class',$('a_class').value).neq('status','passed_out').order('roll',{ascending:false,nullsFirst:false}).limit(1);$('a_roll').value=((data&&data[0]&&data[0].roll)||0)+1};
+ sug();$('a_class').onchange=sug;
  $('asv').onclick=async()=>{
   const msg=$('e');msg.textContent='';
   try{
@@ -936,11 +1022,12 @@ function addStudentView(cls){
    if(!o.name)throw new Error('Naam daalein');
    const aad=$('a_aad').value.replace(/\s/g,'');
    if(aad&&!/^\d{12}$/.test(aad))throw new Error('Aadhaar 12 ank ka hona chahiye');
+   if(o.roll!=null){const cn=await rollClash(o.class,o.roll,null);if(cn)throw new Error(`Roll no ${o.roll} is class mein ${cn} ka hai.`)}
    const {data,error}=await sb.from('students').insert(o).select('id').single();
    if(error)throw error;
    if(aad){const r=await sb.from('student_private').insert({student_id:data.id,aadhaar:aad});if(r.error)throw new Error('Student add ho gaya, par Aadhaar save nahi hua: '+r.error.message)}
    classPage(o.class);
-  }catch(x){msg.textContent=x.message}
+  }catch(x){msg.textContent=friendlyErr(x)}
  };
 }
 
@@ -1008,13 +1095,16 @@ async function profile(type,id){
  const mode=acc?acc.mode:'auto',amt=acc?acc.monthly_amount:0,smv=(acc&&acc.start_month?acc.start_month:monthStart()).slice(0,7);
  const card='background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0';
  const details=FL.filter(f=>f[2]!=='photo').map(([k,l])=>`<tr><th>${esc(l.split(' (')[0].split(' /')[0])}</th><td>${esc(p[k])}</td></tr>`).join('');
- let h='';
+ let h='\u0001details\u0001';
+ if(window.pTabFor!==id){window.pTab='details';window.pTabFor=id}
  h+=`<div style="${card}">${p.photo_url?`<img src="${esc(p.photo_url)}" alt="" style="height:90px;border-radius:8px;margin-bottom:8px"><br>`:''}<table>${details}</table>${isAdm()?`<p><button class="g" id="ped">Edit details</button></p><div id="pedit" hidden>${FL.map(f=>inp(f,'p_')).join('')}<button id="psv">Save details</button> <span id="pem" class="msg"></span></div>`:''}</div>`;
  if(stu&&isAdm())h+=`<div style="${card}"><b>🪪 Aadhaar number</b> <small class="mut">(sirf Admin ko dikhta hai)</small><p id="aadtxt" style="font:700 20px var(--f);letter-spacing:.08em;margin:8px 0">${aad?maskA(aad):'— abhi daala nahi —'}</p>${aad?'<p><button id="aadshow">👁 Dikhayein</button></p>':''}<label>${aad?'Naya number (badalne ke liye)':'Aadhaar number (12 ank)'}<input id="aadin" inputmode="numeric" maxlength="14" placeholder="1234 5678 9012"></label><button id="aadsave">Save Aadhaar</button> <span id="aadm" class="msg"></span></div>`;
+ h+='\u0001study\u0001';
  if(stu&&isTeach()){
   const sc=trk.filter(x=>x.score!=null).map(x=>+x.score),avg=sc.length?Math.round(sc.reduce((a,b)=>a+b,0)/sc.length*10)/10:null,lastL=(trk.find(x=>x.level)||{}).level;
   h+=`<div style="${card}"><b>📈 Study Tracker</b><div style="margin:8px 0">${lvBadge(lastL)} <span class="mut">${trk.length} entries${avg!=null?' · Average '+avg+'%':''}</span></div>${avg!=null?`<div style="height:10px;background:var(--surface2);border-radius:6px;overflow:hidden"><div style="width:${Math.min(avg,100)}%;height:100%;background:linear-gradient(90deg,var(--gold),var(--neon))"></div></div>`:''}<div class="f" style="margin-top:12px"><label>Subject<select id="tsub">${[...new Set(['General',...subs(p.class),'Behaviour'])].map(x=>`<option value="${esc(x)}">${esc(x)}</option>`).join('')}</select></label><label>Marks % (optional)<input id="tsc" type="number" min="0" max="100"></label><label>Kaisa padh raha hai<select id="tlv"><option value="">—</option><option value="excellent">Excellent</option><option value="good">Good</option><option value="average">Average</option><option value="weak">Weak (extra dhyan chahiye)</option></select></label><label>Date<input id="tdt" type="date" value="${today()}"></label></div><label>Note (kya achha hai, kya kami hai, aage kya karna hai)<textarea id="tnt" rows="3"></textarea></label><button id="tadd">Add to tracker</button> <span id="tem" class="msg"></span><div class="wrap" id="tlist" style="margin-top:12px">${trk.length?`<table><tr><th>Date</th><th>Subject</th><th>Marks</th><th>Level</th><th>Note</th><th></th></tr>${trk.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.subject)}</td><td>${x.score!=null?x.score+'%':''}</td><td>${lvBadge(x.level)}</td><td>${esc(x.note)}</td><td><button class="r" data-td="${x.id}">Delete</button></td></tr>`).join('')}</table>`:'<p class="mut">Abhi koi entry nahi.</p>'}</div></div>`;
  }
+ h+='\u0001promo\u0001';
  if(stu&&isTeach()){
   const sl=subs(p.class),vm=Object.fromEntries(votes.map(x=>[x.subject,x]));
   const yes=sl.filter(x=>vm[x]&&vm[x].decision==='yes').length;
@@ -1028,7 +1118,9 @@ async function profile(type,id){
   if(hist.length)h+=`<h3>Promotion history</h3><div class="wrap"><table><tr><th>Date</th><th>From</th><th>To</th><th>By</th></tr>${hist.map(x=>`<tr><td>${fmt(x.on_date)}</td><td>${esc(x.from_class)}</td><td>${esc(x.to_class)}</td><td>${esc(x.by_name)}</td></tr>`).join('')}</table></div>`;
   h+=`</div>`;
  }
+ h+='\u0001res\u0001';
  if(stu&&isTeach()&&rsl.length)h+=`<div style="${card}"><b>🏆 Results</b><div class="wrap"><table><tr><th>Exam</th><th>Session</th><th>Class</th><th>%</th><th>Grade</th><th>Result</th><th></th></tr>${rsl.map((r,i)=>`<tr><td>${esc(exm2[r.exam_id]?exm2[r.exam_id].name:'')}</td><td>${esc(exm2[r.exam_id]?exm2[r.exam_id].session:'')}</td><td>${esc(clsEn(r.class))}</td><td>${r.percent}</td><td>${esc(r.grade)}</td><td style="color:${r.result==='pass'?'var(--neon)':'var(--red)'}">${r.result==='pass'?'PASS':'FAIL'}</td><td><button data-rs="${i}">PDF</button></td></tr>`).join('')}</table></div></div>`;
+ h+='\u0001fee\u0001';
  if(see){
   h+=`<div style="${card}"><small class="mut">${stu?'Baki fees':'Baki salary'}</small><div style="font:800 32px var(--f);color:${due>0?'var(--red)':'var(--neon)'}">${money(due)}</div><small class="mut">Total: ${money(sum('charge'))} · ${stu?'Mile':'Diye'}: ${money(sum('payment'))}${sum('discount')?' · '+(stu?'Discount':'Deduction')+': '+money(sum('discount')):''}</small>`;
   if(pending.length)h+=`<p style="margin:10px 0 0"><b>Pending:</b></p><table>${pending.map(r=>`<tr><td>${esc(r.label)}</td><td>${money(r.amt)}</td></tr>`).join('')}</table>`;
@@ -1039,7 +1131,17 @@ async function profile(type,id){
   if(ed)h+=`<div style="${card}"><b>Nayi entry</b><div class="f"><label>Type<select id="lk"><option value="payment">${LB.payment}</option><option value="charge">${LB.charge}</option><option value="discount">${LB.discount}</option></select></label><label>Amount (₹)<input id="la" type="number" min="1"></label><label>Date<input id="ld" type="date" value="${today()}"></label><label>Note<input id="ln"></label></div><button id="lad">Add entry</button></div>`;
   h+=`<h3>Hisaab (ledger)</h3><div class="wrap" id="pled"><table><tr><th>Date</th><th>Type</th><th>Amount</th><th>Note</th>${ed?'<th></th>':''}</tr>${[...led].reverse().map(r=>`<tr><td>${r.auto?mlabel(r.month):fmt(r.paid_on||r.created_at)}</td><td>${LB[r.kind]}</td><td>${r.kind==='payment'?'−':(r.kind==='discount'?'−':'+')} ${money(r.amount)}</td><td>${esc(r.note||'')}${r.auto?' <small class="mut">(auto)</small>':''}</td>${ed?`<td>${r.auto?'':`<button class="r" data-del="${r.id}">Delete</button>`}</td>`:''}</tr>`).join('')}</table></div>`;
  }
+ {
+  const parts=h.split(/\u0001(\w+)\u0001/),secs={},order=[];
+  for(let i=1;i<parts.length;i+=2){secs[parts[i]]=parts[i+1];order.push(parts[i])}
+  const TL={details:'📋 Details',fee:stu?'💰 Fees':'💼 Salary',study:'📈 Study',promo:'🚀 Promotion',res:'🏆 Results'};
+  const tabs=order.filter(k=>secs[k].trim()),cur=tabs.includes(window.pTab)?window.pTab:'details';
+  const rollBox=stu&&isAdm()?`<div style="${card}"><div class="f"><label>Roll no<input id="rq" type="number" min="1" value="${p.roll==null?'':p.roll}"></label></div><button id="rqs">Save roll no</button> <span id="rqm" class="msg"></span><p class="mut"><small>Ek class mein ek roll no sirf ek hi bachhe ka ho sakta hai.</small></p></div>`:'';
+  h=rollBox+`<div class="ptabs" id="ptabs">${tabs.map(k=>`<button data-t="${k}" class="${k===cur?'on':''}">${TL[k]}</button>`).join('')}</div>`+tabs.map(k=>`<div class="ptab" data-t="${k}" ${k===cur?'':'hidden'}>${secs[k]}</div>`).join('');
+ }
  $('pmain').innerHTML=h;
+ $('ptabs').onclick=e=>{const b=e.target.closest('button');if(!b)return;window.pTab=b.dataset.t;$('pmain').querySelectorAll('.ptab').forEach(d=>d.hidden=d.dataset.t!==b.dataset.t);$('ptabs').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b))};
+ if($('rqs'))$('rqs').onclick=async()=>{const n=parseInt($('rq').value,10);if(!(n>0)){$('rqm').textContent='Sahi roll no daalein';return}const cn=await rollClash(p.class,n,id);if(cn){$('rqm').textContent=`Roll no ${n} is class mein ${cn} ka hai.`;return}const {error}=await sb.from('students').update({roll:n}).eq('id',id);if(error)$('rqm').textContent=friendlyErr(error);else profile(type,id)};
  if(stu&&isTeach()){
   $('tadd').onclick=async()=>{
    const lvv=$('tlv').value,scv=$('tsc').value,nt=$('tnt').value.trim();
@@ -1080,9 +1182,10 @@ async function profile(type,id){
    try{
     const o={};
     for(const [k,,t] of FL){const el=$('p_'+k);if(t==='photo'){const f=el.files[0];if(f)o[k]=await upPhoto(f,'teachers');continue}const val=el.value.trim();o[k]=val===''?null:(t==='number'?+val:val)}
+    if(stu&&o.roll!=null){const cn=await rollClash(o.class||p.class,o.roll,id);if(cn)throw new Error(`Roll no ${o.roll} is class mein ${cn} ka hai.`)}
     const {error}=await sb.from(stu?'students':'teachers').update(o).eq('id',id);
     if(error)throw error;profile(type,id);
-   }catch(x){$('pem').textContent=x.message}
+   }catch(x){$('pem').textContent=friendlyErr(x)}
   };
  }
  document.querySelectorAll('[data-sl]').forEach(b=>b.onclick=async()=>{try{await slipAct(b.dataset.sl,type,p,pending,due)}catch(x){alert(x.message)}});
@@ -1154,6 +1257,18 @@ async function slipAct(kind,type,p,pending,due){
 }
 
 
+function makeSlider(id,counter){
+ const el=$(id);if(!el||el.parentNode.classList.contains('slw'))return;
+ const w=document.createElement('div');w.className='slw';el.parentNode.insertBefore(w,el);w.appendChild(el);
+ const mk=(c,t,d)=>{const b=document.createElement('button');b.className='arw '+c;b.textContent=t;b.setAttribute('aria-label',d);b.onclick=()=>el.scrollBy({left:(d==='prev'?-1:1)*el.clientWidth*.85,behavior:'smooth'});w.appendChild(b)};
+ mk('l','‹','prev');mk('r','›','next');
+ if(counter){
+  const c=document.createElement('div');c.className='cnt';w.appendChild(c);
+  const upd=()=>{const f=el.firstElementChild;if(!f||f.tagName==='P'){c.hidden=true;return}c.hidden=false;const step=f.getBoundingClientRect().width+14;c.textContent=Math.min(el.children.length,Math.round(el.scrollLeft/step)+1)+' / '+el.children.length};
+  el.addEventListener('scroll',upd,{passive:true});new MutationObserver(upd).observe(el,{childList:true});upd();
+ }
+}
+['tch','not','fac'].forEach(i=>makeSlider(i));makeSlider('gal',true);
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 paint();load();
 loadMe().then(ok=>{if(location.hash==='#panel'){ok?goFirst():showLogin()}});
