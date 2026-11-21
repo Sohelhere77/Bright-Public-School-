@@ -321,11 +321,29 @@ window.I18N={
 "Custom monthly fee (₹)":["अलग मासिक फीस (₹)","Custom monthly fee (₹)"],
 "Is bachhe ko family se alag karein?":["इस बच्चे को परिवार से अलग करें?","Remove this child from the family?"],
 "Time Table":["समय सारणी","Time Table"],
+/* v7: ID card, delete, absent call */
+"📁 Absent":["📁 अनुपस्थित","📁 Absent"],
+"Gair-hazir bachhe (Call karein)":["अनुपस्थित बच्चे (कॉल करें)","Absent children (call them)"],
+"Aaj":["आज","Today"],"Kal":["कल","Yesterday"],
+"📞 Call":["📞 कॉल करें","📞 Call"],"💬 WhatsApp":["💬 WhatsApp","💬 WhatsApp"],
+"Phone nahi":["फ़ोन नहीं","No phone"],"Call":["कॉल करें","Call"],"WhatsApp":["WhatsApp","WhatsApp"],
+"ID Card (PDF)":["आईडी कार्ड (PDF)","ID Card (PDF)"],"ID Card (PNG)":["आईडी कार्ड (PNG)","ID Card (PNG)"],
+"ID cards (PDF)":["आईडी कार्ड (PDF)","ID cards (PDF)"],
+"Fee slip (PDF)":["फीस पर्ची (PDF)","Fee slip (PDF)"],"Salary slip (PDF)":["वेतन पर्ची (PDF)","Salary slip (PDF)"],
+"School chhoda / Passed out":["स्कूल छोड़ा / पास आउट","Left school / Passed out"],
+"Delete student":["विद्यार्थी हटाएँ","Delete student"],"Delete staff member":["कर्मचारी हटाएँ","Delete staff member"],
+"Pakka karne ke liye DELETE likhein":["पक्का करने के लिए DELETE लिखें","Type DELETE to confirm"],
+"Student delete ho gaya.":["विद्यार्थी हट गया।","Student deleted."],"Staff delete ho gaya.":["कर्मचारी हट गया।","Staff member deleted."],
+"Is bachhe ko \"Passed out / school chhoda\" mark karein? Record rahega, roll khali ho jayega.":["इस बच्चे को \"पास आउट / स्कूल छोड़ा\" मार्क करें? रिकॉर्ड रहेगा, रोल खाली हो जाएगा।","Mark this child as \"Passed out / left school\"? The record stays and the roll number becomes free."],
+"Admission no":["प्रवेश संख्या","Admission no"],"Adm no":["प्रवेश सं.","Adm no"],
+"Ye Admission no pehle se kisi aur bachhe ka hai.":["यह प्रवेश संख्या पहले से किसी और बच्चे की है।","This admission number already belongs to another child."],
 /* misc */
 "Subjects":["विषय","Subjects"],"Title":["शीर्षक","Title"],
 "Hisaab":["हिसाब","Ledger"]
 };
 window.I18N_RX=[
+ [/^"(.*)" ko hamesha ke liye delete karein\? Iska fee hisaab, marks aur tracker sab hat jayega\.$/,m=>`"${m[1]}" को हमेशा के लिए हटाएँ? इसका फीस हिसाब, अंक और ट्रैकर सब हट जाएगा।`,m=>`Delete "${m[1]}" permanently? Their fee ledger, marks and tracker will all be removed.`],
+ [/^ID card ban rahi hain \((\d+)\/(\d+)\)\.\.\.$/,m=>`आईडी कार्ड बन रहे हैं (${m[1]}/${m[2]})...`,m=>`Creating ID cards (${m[1]}/${m[2]})...`],
  [/^Class default \((.*)\)$/,m=>`क्लास डिफ़ॉल्ट (${m[1]})`,m=>m[0]],
  [/^📌 (\d+) zarurat khuli hain$/,m=>`📌 ${m[1]} ज़रूरतें खुली हैं`,m=>`📌 ${m[1]} needs are open`],
  [/^🔴 (\d+) urgent$/,m=>`🔴 ${m[1]} ज़रूरी`,m=>m[0]],
