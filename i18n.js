@@ -337,6 +337,20 @@ window.I18N={
 "Is bachhe ko \"Passed out / school chhoda\" mark karein? Record rahega, roll khali ho jayega.":["इस बच्चे को \"पास आउट / स्कूल छोड़ा\" मार्क करें? रिकॉर्ड रहेगा, रोल खाली हो जाएगा।","Mark this child as \"Passed out / left school\"? The record stays and the roll number becomes free."],
 "Admission no":["प्रवेश संख्या","Admission no"],"Adm no":["प्रवेश सं.","Adm no"],
 "Ye Admission no pehle se kisi aur bachhe ka hai.":["यह प्रवेश संख्या पहले से किसी और बच्चे की है।","This admission number already belongs to another child."],
+/* v9: developer/owner, missing info */
+"developer":["डेवलपर","Developer","Developer"],"Developer":["डेवलपर","Developer"],
+"Owner (poori power)":["ओनर (पूरी शक्ति)","Owner (full power)"],"Owner":["ओनर","Owner"],
+"Ye staff Owner ban jayega. Pakka?":["यह स्टाफ ओनर बन जाएगा। पक्का?","This staff member will become Owner. Sure?"],
+"Owner sirf Developer bana sakta hai":["ओनर सिर्फ़ डेवलपर बना सकता है","Only the Developer can create an Owner"],
+"Owner ko sirf Developer badal sakta hai":["ओनर को सिर्फ़ डेवलपर बदल सकता है","Only the Developer can change an Owner"],
+"Developer ko koi nahi badal sakta":["डेवलपर को कोई नहीं बदल सकता","Nobody can change the Developer"],
+"Khud ko nahi badal sakte":["खुद को नहीं बदल सकते","You cannot change yourself"],
+"Ye pehle se Owner ya Developer hai":["यह पहले से ओनर या डेवलपर है","This person is already an Owner or Developer"],
+"Admin ko sirf Owner ya Developer badal sakta hai":["एडमिन को सिर्फ़ ओनर या डेवलपर बदल सकता है","Only an Owner or Developer can change an Admin"],
+"Missing info":["अधूरी जानकारी","Missing info"],
+"📷 Photo":["📷 फ़ोटो","📷 Photo"],"🪪 Aadhaar":["🪪 आधार","🪪 Aadhaar"],"💰 Fee setup":["💰 फीस सेटअप","💰 Fee setup"],
+"Kiski jankari":["किसकी जानकारी","Whose information"],"Missing":["अधूरी","Missing"],
+"Sab ki jankari poori hai ✅":["सबकी जानकारी पूरी है ✅","Everyone's information is complete ✅"],
 /* misc */
 "Subjects":["विषय","Subjects"],"Title":["शीर्षक","Title"],
 "Hisaab":["हिसाब","Ledger"]

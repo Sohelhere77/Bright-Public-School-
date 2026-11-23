@@ -1,5 +1,4 @@
-// Supabase > Edge Functions > Deploy a new function > Via Editor
-// Function name: staff-admin   (Settings mein "Verify JWT" OFF karein)
+// Supabase > Edge Functions > staff-admin > Code mein ye poora code paste karke Deploy karein
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -18,15 +17,18 @@ Deno.serve(async (req) => {
     const { data: { user } } = await admin.auth.getUser(token);
     if (!user) return json({ error: "Pehle login karein" });
     const { data: me } = await admin.from("staff").select("access").eq("user_id", user.id).maybeSingle();
-    if (!me || !["owner", "admin"].includes(me.access)) return json({ error: "Sirf Admin ye kar sakta hai" });
-    const isOwner = me.access === "owner";
+    if (!me || !["developer", "owner", "admin"].includes(me.access)) return json({ error: "Sirf Admin ye kar sakta hai" });
+    const isDev = me.access === "developer";
+    const isOwner = isDev || me.access === "owner";
+    const levels = isDev ? ["owner", "admin", "teacher", "staff"] : isOwner ? ["admin", "teacher", "staff"] : ["teacher", "staff"];
     const b = await req.json();
 
     if (b.action === "create") {
       const email = lc(b.email), pw = String(b.password || "");
       if (!email.includes("@") || pw.length < 8) return json({ error: "Sahi Gmail aur 8+ akshar ka password daalein" });
-      if (!["admin", "teacher", "staff"].includes(b.access)) return json({ error: "Access galat hai" });
-      if (b.access === "admin" && !isOwner) return json({ error: "Admin sirf Owner bana sakta hai" });
+      if (!levels.includes(b.access)) {
+        return json({ error: b.access === "owner" ? "Owner sirf Developer bana sakta hai" : b.access === "admin" ? "Admin sirf Owner bana sakta hai" : "Access galat hai" });
+      }
       const { data: cu, error: ce } = await admin.auth.admin.createUser({ email, password: pw, email_confirm: true });
       if (ce) return json({ error: ce.message });
       const { error: ie } = await admin.from("staff").insert({
@@ -40,22 +42,26 @@ Deno.serve(async (req) => {
     if (!t) return json({ error: "Staff nahi mila" });
 
     if (b.action === "make_owner") {
-      if (!isOwner) return json({ error: "Sirf Owner ye kar sakta hai" });
-      if (t.user_id === user.id) return json({ error: "Aap pehle se Owner hain" });
+      if (!isOwner) return json({ error: "Sirf Owner ya Developer ye kar sakta hai" });
+      if (t.user_id === user.id) return json({ error: "Aap pehle se Owner ya Developer hain" });
+      if (t.access === "owner" || t.access === "developer") return json({ error: "Ye pehle se Owner ya Developer hai" });
       const r1 = await admin.from("staff").update({ access: "owner" }).eq("user_id", t.user_id);
       if (r1.error) return json({ error: r1.error.message });
-      await admin.from("staff").update({ access: "admin" }).eq("user_id", user.id);
+      if (!isDev) await admin.from("staff").update({ access: "admin" }).eq("user_id", user.id);
       return json({ ok: true });
     }
 
-    if (t.access === "owner" || t.user_id === user.id) return json({ error: "Owner ya khud ko nahi badal sakte" });
-    if (t.access === "admin" && !isOwner) return json({ error: "Admin ko sirf Owner badal sakta hai" });
+    if (t.user_id === user.id) return json({ error: "Khud ko nahi badal sakte" });
+    if (t.access === "developer") return json({ error: "Developer ko koi nahi badal sakta" });
+    if (t.access === "owner" && !isDev) return json({ error: "Owner ko sirf Developer badal sakta hai" });
+    if (t.access === "admin" && !isOwner) return json({ error: "Admin ko sirf Owner ya Developer badal sakta hai" });
 
     if (b.action === "update") {
       const patch: Record<string, string> = {};
       if (b.access) {
-        if (!["admin", "teacher", "staff"].includes(b.access)) return json({ error: "Access galat hai" });
-        if (b.access === "admin" && !isOwner) return json({ error: "Admin sirf Owner bana sakta hai" });
+        if (!levels.includes(b.access)) {
+          return json({ error: b.access === "owner" ? "Owner sirf Developer bana sakta hai" : b.access === "admin" ? "Admin sirf Owner bana sakta hai" : "Access galat hai" });
+        }
         patch.access = b.access;
       }
       if (b.name !== undefined) patch.name = b.name;

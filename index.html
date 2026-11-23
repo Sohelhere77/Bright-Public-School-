@@ -129,6 +129,8 @@ ul.chips.slider{display:flex}ul.chips.slider>li{flex-basis:min(70%,230px)}
 #panelView #pmbox button.dng{color:var(--red)}
 .cbtn{display:inline-block;background:var(--accent);color:var(--on);padding:6px 12px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px}
 .cbtn.wa{background:#25D366;color:#06260f}
+.stf{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+.mb{display:inline-block;border:1px solid var(--red);color:var(--red);border-radius:12px;padding:1px 8px;font-size:12px;margin:2px 4px 2px 0}
 </style>
 </head>
 <body>
@@ -259,16 +261,16 @@ async function load(){
 }
 
 /* ---------- Staff panel (same page) ---------- */
-const POSTS=["Principal","Vice Principal","Teacher","Clerk","Peon","Driver","Other"];
-const ACC={admin:"Full control (Admin)",teacher:"Teacher (students, attendance, notices)",staff:"Basic (sirf notices dekhna)"};
-const isAdm=()=>ME&&(ME.access==='owner'||ME.access==='admin');
-const lvl=t=>ME.access==='owner'?'edit':((t==='student'?ME.fees_access:ME.salary_access)||'none');
+const POSTS=["Principal","Vice Principal","Teacher","Clerk","Peon","Driver","Owner","Developer","Other"];
+const ACC={owner:"Owner (poori power)",admin:"Full control (Admin)",teacher:"Teacher (students, attendance, notices)",staff:"Basic (sirf notices dekhna)"};
+const isAdm=()=>ME&&(ME.access==='developer'||ME.access==='owner'||ME.access==='admin');
+const lvl=t=>(ME.access==='owner'||ME.access==='developer')?'edit':((t==='student'?ME.fees_access:ME.salary_access)||'none');
 const isTeach=()=>isAdm()||ME.access==='teacher';
 const allowed=k=>{
  if(k==='fees')return lvl('student')!=='none';
  if(k==='salary')return lvl('employee')!=='none';
  if(k==='staffhub'||k==='teachers')return isAdm()||lvl('employee')!=='none';
- if(k==='atthub'||k==='sa'||k==='examhub'||k==='resulthub'||k==='needs')return isTeach();
+ if(k==='atthub'||k==='sa'||k==='examhub'||k==='resulthub'||k==='needs'||k==='missing')return isTeach();
  if(k==='mgthub')return lvl('student')!=='none'||lvl('employee')!=='none';
  if(k==='students')return isTeach()||lvl('student')!=='none';
  return isAdm()||k==='notices';
@@ -293,6 +295,7 @@ const TABS={
  atthub:{label:'Attendance / उपस्थिति',run:attHub},
  mgthub:{label:'Management / प्रबंधन',run:mgtHub},
  needs:{label:'School Needs / स्कूल की ज़रूरतें',run:needsView},
+ missing:{label:'Missing info / अधूरी जानकारी',run:missingView},
  timetable:{label:'Time Table / समय सारणी',run:ttAdmin},
  examhub:{label:'Exams / परीक्षा',run:examHub},
  resulthub:{label:'Results / परिणाम',run:resultHub},
@@ -301,7 +304,7 @@ const TABS={
  gallery:{label:'Gallery',run:()=>crud('gallery',[['url','Photos (ek saath kai chun sakte hain)','photos'],['caption','Caption (optional)']],['url','caption'],'created_at',true)}
 };
 
-const ICON={needs:'📌',timetable:'🕒',examhub:'📝',resulthub:'🏆',staffhub:'👥',atthub:'✅',mgthub:'💰',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
+const ICON={missing:'⚠️',needs:'📌',timetable:'🕒',examhub:'📝',resulthub:'🏆',staffhub:'👥',atthub:'✅',mgthub:'💰',fees:'💰',salary:'💼',site:'✏️',staff:'👥',students:'🎓',sa:'✅',ta:'🧑‍🏫',teachers:'👩‍🏫',notices:'📢',gallery:'🖼️'};
 const setBar=a=>{[['bHome','home'],['bAdm','adm'],['bAtt','att'],['bMgt','mgt'],['bMenu','panel']].forEach(([id,k])=>$(id).classList.toggle('on',a===k));const bar=$('bar'),on=bar.querySelector('button.on');if(on)bar.scrollTo({left:on.offsetLeft-(bar.clientWidth-on.offsetWidth)/2,behavior:'smooth'})};
 function showAdm(id){$('site').hidden=true;$('panelView').hidden=true;$('admView').hidden=false;$('sheet').hidden=true;setBar('adm');const el=id&&$(id);if(el)el.scrollIntoView();else window.scrollTo(0,0)}
 function goTo(id){$('sheet').hidden=true;if(id==='admission'||id==='fees'){showAdm(id);return}showSite();const el=$(id);if(el)setTimeout(()=>el.scrollIntoView({behavior:'smooth'}),40)}
@@ -336,7 +339,7 @@ let lastTab='',navBack=null,backTo=null;
 function openTab(k,bk){
  lastTab=k;showPanel();setBar(k==='atthub'?'att':k==='mgthub'?'mgt':'panel');navBack=bk||null;$('pback').hidden=!navBack;
  $('ptitle').textContent=TABS[k].label;
- $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='owner'?' (Owner)':'');
+ $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='developer'?' (Developer)':ME.access==='owner'?' (Owner)':'');
  TABS[k].run();
 }
 const goFirst=()=>{const ks=Object.keys(TABS).filter(allowed);if(isAdm()&&window.needsOpen&&ks.includes('needs'))return openTab('needs');openTab(ks.includes('students')?'students':ks[0])};
@@ -349,7 +352,7 @@ function openSheet(){
  const web=['site','timetable','notices','gallery'].filter(allowed).map(btn).join('');
  const gs=[];if(web)gs.push(['📁 Website',web]);
  gs.push(['📁 Account','<button data-act="pw"><span>🔑</span>Change password</button><button data-act="out"><span>🚪</span>Logout</button>']);
- $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p>${nt}<div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}${big('atthub','✅','Attendance')}${big('mgthub','💰','Management')}${big('examhub','📝','Exams')}${big('resulthub','🏆','Results')}</div>`+foldersHTML(gs);
+ $('shBody').innerHTML=`<p class="mut" style="margin:0 0 10px">${esc(ME.name||ME.email)} · ${esc(ME.post||ME.access)}</p>${nt}<div class="bigs">${big('students','🎓','Students')}${big('staffhub','👥','Staff')}${big('atthub','✅','Attendance')}${big('mgthub','💰','Management')}${big('examhub','📝','Exams')}${big('resulthub','🏆','Results')}${big('missing','⚠️','Missing info')}</div>`+foldersHTML(gs);
  $('sheet').hidden=false;
 }
 function openExplore(){
@@ -405,13 +408,13 @@ async function siteTab(){
   $('e').className=error?'msg':'ok';$('e').textContent=error?error.message:'Saved ✓ Ab website par dekhein';
  };
 }
-const accOpts=(cur,isOwner)=>Object.entries(ACC).filter(([k])=>isOwner||k!=='admin'||cur==='admin').map(([k,l])=>`<option value="${k}" ${k===cur?'selected':''}>${l}</option>`).join('');
+const accOpts=(cur,isOwner,isDevel)=>Object.entries(ACC).filter(([k])=>k==='owner'?(isDevel||cur==='owner'):k==='admin'?(isOwner||cur==='admin'):true).map(([k,l])=>`<option value="${k}" ${k===cur?'selected':''}>${l}</option>`).join('');
 const LV={none:'Koi access nahi',view:'Sirf dekhna',edit:'Dekhna + edit'};
 const lvOpts=c=>Object.entries(LV).map(([k,l])=>`<option value="${k}" ${k===c?'selected':''}>${l}</option>`).join('');
 async function staffTab(){
- const isOwner=ME.access==='owner';
- $('pmain').innerHTML=`<h3>Naya staff add karein</h3><div class="f"><label>Name<input id="sn"></label><label>Post<select id="sp">${POSTS.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></label><label>Gmail<input id="se" type="email"></label><label>Access<select id="sx">${accOpts('staff',isOwner)}</select></label>${isOwner?`<label>Management: Student fees<select id="sfa">${lvOpts('none')}</select></label><label>Management: Salary<select id="ssa">${lvOpts('none')}</select></label>`:''}<label>Temporary password (8+ akshar)<input id="spw"></label></div><button id="sadd">Add staff</button> <span id="e"></span><h3>Staff list</h3><div class="wrap" id="sl">Loading...</div>`;
- $('sp').onchange=()=>{const p=$('sp').value;$('sx').value=((p==='Principal'||p==='Vice Principal')&&isOwner)?'admin':(p==='Teacher'?'teacher':'staff');if(!$('sx').value)$('sx').value='staff'};
+ const isDevel=ME.access==='developer',isOwner=isDevel||ME.access==='owner';
+ $('pmain').innerHTML=`<h3>Naya staff add karein</h3><div class="f"><label>Name<input id="sn"></label><label>Post<select id="sp">${POSTS.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></label><label>Gmail<input id="se" type="email"></label><label>Access<select id="sx">${accOpts('staff',isOwner,isDevel)}</select></label>${isOwner?`<label>Management: Student fees<select id="sfa">${lvOpts('none')}</select></label><label>Management: Salary<select id="ssa">${lvOpts('none')}</select></label>`:''}<label>Temporary password (8+ akshar)<input id="spw"></label></div><button id="sadd">Add staff</button> <span id="e"></span><h3>Staff list</h3><div id="sl">Loading...</div>`;
+ $('sp').onchange=()=>{const p=$('sp').value;$('sx').value=(p==='Owner'&&isDevel)?'owner':((p==='Principal'||p==='Vice Principal')&&isOwner)?'admin':(p==='Teacher'?'teacher':'staff');if(!$('sx').value)$('sx').value='staff'};
  $('sp').onchange();
  $('sadd').onclick=async()=>{
   $('e').className='msg';$('e').textContent='Please wait...';
@@ -422,12 +425,15 @@ async function staffTab(){
    staffTab();
   }catch(x){$('e').textContent=x.message}
  };
- const {data,error}=await sb.from('staff').select('*').order('created_at');
+ const {data,error}=await sb.from('staff').select('*');
  if(error){$('sl').textContent=error.message;return}
- $('sl').innerHTML=`<table><tr><th>Name</th><th>Post</th><th>Gmail</th><th>Access</th><th>Fees</th><th>Salary</th><th></th></tr>${data.map(r=>{
-  const can=r.user_id!==ME.user_id&&r.access!=='owner'&&(isOwner||r.access!=='admin');
-  const pc=(f,a)=>r.access==='owner'?'Full':(isOwner?`<select ${a}="${r.user_id}">${lvOpts(r[f])}</select>`:esc(LV[r[f]]||''));
-  return `<tr><td>${esc(r.name)}</td><td>${esc(r.post)}</td><td>${esc(r.email)}</td><td>${can?`<select data-a="${r.user_id}">${accOpts(r.access,isOwner)}</select>`:esc(r.access)}</td><td>${pc('fees_access','data-fa')}</td><td>${pc('salary_access','data-sa')}</td><td>${can?`<button data-pw="${r.user_id}">Password</button> <button class="r" data-rm="${r.user_id}">Remove</button>${isOwner?` <button class="g" data-ow="${r.user_id}">Make Owner</button>`:''}`:''}</td></tr>`}).join('')}</table>`;
+ const rk=a=>({developer:0,owner:1,admin:2,teacher:3,staff:4}[a]??5);
+ data.sort((a,b)=>rk(a.access)-rk(b.access)||String(a.name).localeCompare(String(b.name)));
+ $('sl').innerHTML=data.map(r=>{
+  const can=r.user_id!==ME.user_id&&r.access!=='developer'&&(r.access!=='owner'||isDevel)&&(isOwner||r.access!=='admin');
+  const full=r.access==='owner'||r.access==='developer';
+  const pc=(f,a)=>full?'Full':(isOwner?`<select ${a}="${r.user_id}">${lvOpts(r[f])}</select>`:esc(LV[r[f]]||''));
+  return `<div class="stf"><div><b>${esc(r.name)}</b> <small class="mut">${esc(r.post)}</small><br><small class="mut">${esc(r.email)}</small></div><div class="f" style="margin-top:8px"><label>Access${can?`<select data-a="${r.user_id}">${accOpts(r.access,isOwner,isDevel)}</select>`:`<div style="margin-top:4px;font-weight:700;color:var(--ink)">${esc(r.access)}</div>`}</label><label>Fees<div style="margin-top:4px;color:var(--ink)">${pc('fees_access','data-fa')}</div></label><label>Salary<div style="margin-top:4px;color:var(--ink)">${pc('salary_access','data-sa')}</div></label></div>${can?`<div style="margin-top:6px"><button data-pw="${r.user_id}">Password</button> <button class="r" data-rm="${r.user_id}">Remove</button>${isOwner&&!full?` <button class="g" data-ow="${r.user_id}">Make Owner</button>`:''}</div>`:''}</div>`}).join('');
  const run=async f=>{try{await f();staffTab()}catch(x){alert(x.message)}};
  $('sl').onchange=e=>{const d=e.target.dataset;
   if(d.a)run(()=>fn({action:'update',user_id:d.a,access:e.target.value}));
@@ -436,7 +442,7 @@ async function staffTab(){
  $('sl').onclick=e=>{const d=e.target.dataset;
   if(d.pw){const p=prompt('Is staff ka naya password (8+ akshar)');if(p)run(()=>fn({action:'update',user_id:d.pw,password:p}))}
   else if(d.rm){if(confirm('Is staff ka login hamesha ke liye hata dein?'))run(()=>fn({action:'remove',user_id:d.rm}))}
-  else if(d.ow){if(confirm('Ye staff Owner ban jayega aur aap Admin ban jayenge. Pakka?'))run(async()=>{await fn({action:'make_owner',user_id:d.ow});location.reload()})}
+  else if(d.ow){if(confirm(isDevel?'Ye staff Owner ban jayega. Pakka?':'Ye staff Owner ban jayega aur aap Admin ban jayenge. Pakka?'))run(async()=>{await fn({action:'make_owner',user_id:d.ow});if(!isDevel)location.reload()})}
  };
 }
 
@@ -1260,6 +1266,44 @@ async function absentView(){
  load();
 }
 
+/* ---------- Missing info ---------- */
+const SMISS=[['photo_url','📷 Photo'],['father_name',"Father's name"],['mother_name',"Mother's name"],['phone','Phone'],['address','Address'],['dob','Date of birth'],['roll','Roll no'],['admission_no','Admission no']];
+const EMISS=[['photo_url','📷 Photo'],['phone','Phone'],['address','Address'],['dob','Date of birth'],['joining_date','Joining date']];
+const MLBL={aadhaar:'🪪 Aadhaar',fee:'💰 Fee setup'};
+async function missingView(){
+ const pm=$('pmain'),M=window.msS||(window.msS={who:'student',cls:'',f:''});
+ if(!isAdm())M.who='student';
+ pm.innerHTML='<p class="mut">Loading...</p>';
+ const stu=M.who==='student';
+ let rows,aad=null,acc=null;
+ try{
+  rows=await fetchAll(()=>sb.from(stu?'students':'teachers').select(stu?'id,name,class,roll,admission_no,father_name,mother_name,phone,address,dob,photo_url,status':'id,name,post,phone,address,dob,joining_date,photo_url'));
+  if(stu&&isAdm())aad=new Set((await fetchAll(()=>sb.from('student_private').select('student_id,aadhaar'))).filter(x=>x.aadhaar).map(x=>x.student_id));
+  if(stu&&lvl('student')!=='none')acc=new Set((await fetchAll(()=>sb.from('accounts').select('person_id').eq('person_type','student'))).map(x=>x.person_id));
+ }catch(e){pm.innerHTML=`<p class="msg">${esc(e.message)}</p>`;return}
+ const base=stu?SMISS:EMISS;
+ const miss=r=>{const m=[];base.forEach(([k])=>{if(r[k]==null||String(r[k]).trim()==='')m.push(k)});if(stu&&aad&&!aad.has(r.id))m.push('aadhaar');if(stu&&acc&&!acc.has(r.id))m.push('fee');return m};
+ const lbl=k=>MLBL[k]||(base.find(x=>x[0]===k)||[0,k])[1];
+ const ci=c=>{const i=CONFIG.classes.indexOf(c);return i<0?99:i};
+ const all=rows.filter(r=>!stu||r.status!=='passed_out').map(r=>({r,m:miss(r)}));
+ if(stu)all.sort((a,b)=>ci(a.r.class)-ci(b.r.class)||(a.r.roll??9999)-(b.r.roll??9999));else all.sort((a,b)=>String(a.r.name).localeCompare(String(b.r.name)));
+ pm.innerHTML=`<div class="f">${isAdm()?`<label>Kiski jankari<select id="mw"><option value="student">Students</option><option value="employee">Teachers & Staff members</option></select></label>`:''}${stu?`<label>Class<select id="mc3"><option value="">Sab</option>${CONFIG.classes.map(c=>`<option value="${c}">${classLabel(c)}</option>`).join('')}</select></label>`:''}</div><div id="mchips" style="display:flex;flex-wrap:wrap;gap:8px;margin:8px 0"></div><p class="mut" id="mcnt"></p><div class="wrap" id="mtab"></div>`;
+ if(isAdm()){$('mw').value=M.who;$('mw').onchange=()=>{M.who=$('mw').value;M.f='';M.cls='';missingView()}}
+ if(stu){$('mc3').value=M.cls;$('mc3').onchange=()=>{M.cls=$('mc3').value;draw()}}
+ const draw=()=>{
+  const inCls=all.filter(x=>!stu||!M.cls||x.r.class===M.cls),bad=inCls.filter(x=>x.m.length);
+  const keys=[...base.map(x=>x[0]),...(stu&&aad?['aadhaar']:[]),...(stu&&acc?['fee']:[])];
+  const cnt=Object.fromEntries(keys.map(k=>[k,bad.filter(x=>x.m.includes(k)).length]));
+  $('mchips').innerHTML=`<button class="${M.f===''?'':'g'}" data-k=""><span>Sab</span> <b>${bad.length}</b></button>`+keys.filter(k=>cnt[k]).map(k=>`<button class="${M.f===k?'':'g'}" data-k="${k}"><span>${lbl(k)}</span> <b>${cnt[k]}</b></button>`).join('');
+  const list=bad.filter(x=>!M.f||x.m.includes(M.f));
+  $('mcnt').textContent=list.length+' students';
+  $('mtab').innerHTML=list.length?`<table><tr><th>Name</th><th>${stu?'Class':'Post'}</th><th>Missing</th><th></th></tr>${list.map(x=>`<tr><td>${avatar(x.r.photo_url)}${esc(x.r.name)}</td><td>${stu?classLabel(x.r.class)+(x.r.roll!=null?' · '+rollTxt(x.r.roll):''):esc(x.r.post||'')}</td><td>${x.m.map(k=>`<span class="mb">${lbl(k)}</span>`).join('')}</td><td><button class="g" data-o="${x.r.id}">Open</button></td></tr>`).join('')}</table>`:'<p class="ok">Sab ki jankari poori hai ✅</p>';
+ };
+ $('mchips').onclick=e=>{const b=e.target.closest('button');if(b){M.f=b.dataset.k;draw()}};
+ $('mtab').onclick=e=>{const id=e.target.dataset.o;if(!id)return;backTo=()=>openTab('missing');if(stu)openStudent(id,'details',()=>openTab('missing'));else profile('employee',id)};
+ draw();
+}
+
 /* ---------- Students hub (class-wise) / Staff hub / Study tracker ---------- */
 const classLabel=c=>{const n=/^\d+$/.test(c);if(L==='hi')return n?'कक्षा '+c:({Nursery:'नर्सरी',LKG:'एलकेजी',UKG:'यूकेजी'}[c]||c);return n?'Class '+c:c};
 const SUBJ=['General','Hindi','English','Maths','EVS / Science','GK','Computer','Drawing','Rhymes / Oral','Behaviour'];
@@ -1270,7 +1314,7 @@ const fmtA=a=>a.replace(/(\d{4})(?=\d)/g,'$1 ');
 function setView(title,back){
  showPanel();navBack=back||null;$('pback').hidden=!navBack;
  $('ptitle').textContent=title;
- $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='owner'?' (Owner)':'');
+ $('pwho').textContent=(ME.name||ME.email)+' · '+(ME.post||ME.access)+(ME.access==='developer'?' (Developer)':ME.access==='owner'?' (Owner)':'');
 }
 $('pback').onclick=()=>{if(navBack)navBack()};
 const hubGo=(k,bk)=>{if(k==='add')addStudentView();else if(k==='all')allStudents();else openTab(k,bk)};
@@ -1282,7 +1326,7 @@ async function studentsHub(){
  const T2=Object.fromEntries((tr.data||[]).map(r=>[r.sid,r]));
  const cnt={},weak={};
  (sr.data||[]).filter(s=>s.status!=='passed_out').forEach(s=>{cnt[s.class]=(cnt[s.class]||0)+1;if((T2[s.id]||{}).last_level==='weak')weak[s.class]=(weak[s.class]||0)+1});
- const top=[['all','👥','All students'],isAdm()?['add','➕','Add student']:null].filter(Boolean);
+ const top=[['all','👥','All students'],['missing','⚠️','Missing info'],isAdm()?['add','➕','Add student']:null].filter(Boolean);
  pm.innerHTML=`${finderHtml('sq')}<div class="shg" id="hub">${top.map(([k,ic,l])=>`<button data-hk="${k}"><span>${ic}</span>${l}</button>`).join('')}</div><h3>📁 Classes</h3><div class="shg" id="cls">${CONFIG.classes.map(c=>`<button data-c="${c}"><span>📁</span><span>${classLabel(c)}<br><small class="mut">${cnt[c]||0} students${weak[c]?' · ⚠ '+weak[c]+' weak':''}</small></span></button>`).join('')}</div><p class="mut"><small>Class kholkar students, study tracker, attendance aur fees dekhein.</small></p>`;
  $('hub').onclick=e=>{const b=e.target.closest('button');if(b)hubGo(b.dataset.hk,()=>openTab('students'))};
  $('cls').onclick=e=>{const b=e.target.closest('button');if(b)classPage(b.dataset.c)};
