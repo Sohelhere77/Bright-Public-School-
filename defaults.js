@@ -25,6 +25,7 @@ address:"Koilabazar, Rajmahal, Jharkhand",
 phone:"+91 00000 00000",
 email:"",
 whatsapp:"",
+pay_info:"",
 hours_hi:"सोमवार से शनिवार, सुबह 8 से दोपहर 2 बजे",
 hours_en:"Monday to Saturday, 8:00 am to 2:00 pm",
 hours_hn:"Somvaar se Shanivaar, subah 8 baje se dopahar 2 baje tak"};
@@ -50,6 +51,7 @@ hours_hn:"Somvaar se Shanivaar, subah 8 baje se dopahar 2 baje tak"};
  F.push(["email",["ईमेल (वैकल्पिक)","Email (optional)","Email (optional)"]]);
  F.push(["whatsapp",["WhatsApp नंबर (देश कोड के साथ, जैसे 919876543210; खाली छोड़ें तो फ़ोन नंबर लगेगा)","WhatsApp number (with country code, e.g. 919876543210; leave empty to use the phone number)","WhatsApp number (country code ke saath, jaise 919876543210; khali chhodein to phone number lagega)"]]);
  F.push(["grade_scale",["ग्रेड स्केल (हर पंक्ति: न्यूनतम%=ग्रेड, जैसे 90=A+)","Grade scale (each line: minimum%=Grade, e.g. 90=A+)","Grade scale (har line: minimum%=Grade, jaise 90=A+)"],'area']);
+ F.push(["pay_info",["फीस कैसे जमा करें (UPI / ऑफिस समय) - अभिभावकों को फीस जाँच पेज पर दिखेगा","How to pay fees (UPI / office time) - shown to parents on the Fee Check page","Fees kaise jama karein (UPI / office ka samay) - parents ko Fee Check page par dikhega"],'area']);
  trio('hours');
  window.SITE_FIELDS=F;
 })();
