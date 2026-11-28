@@ -373,11 +373,20 @@ window.I18N={
 "Parents ne dono ka paisa ek saath diya? Yahan likhein, system purane baki mein apne aap baant dega.":["अभिभावकों ने सबका पैसा एक साथ दिया? यहाँ लिखें, सिस्टम पुराने बकाया में अपने आप बाँट देगा।","Did the parents pay for everyone together? Enter it here and the system splits it across the oldest dues automatically."],
 "Family payment jodein":["परिवार का भुगतान जोड़ें","Add family payment"],"jaise: 300 mile, 50 baki":["जैसे: 300 मिले, 50 बाकी","e.g. 300 received, 50 pending"],
 "Phone (Papa / main)":["फ़ोन (पापा / मुख्य)","Phone (Papa / main)"],"Mummy ka phone":["मम्मी का फ़ोन","Mummy's phone"],"Doosra phone (guardian / koi aur)":["दूसरा फ़ोन (अभिभावक / कोई और)","Another phone (guardian / other)"],
+/* v11 */
+"Title / Surname (profile mein chhupa rahega)":["शीर्षक / उपनाम (प्रोफ़ाइल में छुपा रहेगा)","Title / Surname (hidden in profile)"],
+"Us bachhe ka profile kholein":["उस बच्चे की प्रोफ़ाइल खोलें","Open that child's profile"],
+"Delete nahi hua: is account ko delete ka access nahi hai, ya record pehle hi hat chuka hai.":["हटाया नहीं गया: इस अकाउंट को हटाने का अधिकार नहीं है, या रिकॉर्ड पहले ही हट चुका है।","Not deleted: this account has no permission to delete, or the record is already gone."],
+"🔔 Fee reminder":["🔔 फीस रिमाइंडर","🔔 Fee reminder"],"Fee reminder":["फीस रिमाइंडर","Fee reminder"],
+"✉️ SMS bhejein":["✉️ SMS भेजें","✉️ Send SMS"],"✉️ SMS":["✉️ SMS","✉️ SMS"],"Phone number nahi hai.":["फ़ोन नंबर नहीं है।","No phone number."],
 /* misc */
 "Subjects":["विषय","Subjects"],"Title":["शीर्षक","Title"],
 "Hisaab":["हिसाब","Ledger"]
 };
 window.I18N_RX=[
+ [/^(Fee jama hui|Fee judi|Discount mila): (.*) — parent ko batayein$/,m=>`${({'Fee jama hui':'फीस जमा हुई','Fee judi':'फीस जुड़ी','Discount mila':'छूट मिली'})[m[1]]}: ${m[2]} — अभिभावक को बताएँ`,m=>`${({'Fee jama hui':'Fee received','Fee judi':'Fee added','Discount mila':'Discount given'})[m[1]]}: ${m[2]} — tell the parent`],
+ [/^Family payment: (.*) — parent ko batayein$/,m=>`परिवार का भुगतान: ${m[1]} — अभिभावक को बताएँ`,m=>`Family payment: ${m[1]} — tell the parent`],
+ [/^⚠ (\d+) din se absent(?: · Aakhri baar: (.*))?$/,m=>`⚠ ${m[1]} दिन से अनुपस्थित${m[2]?' · आख़िरी बार: '+m[2]:''}`,m=>`⚠ Absent for ${m[1]} days${m[2]?' · Last present: '+m[2]:''}`],
  [/^Last: (.*)$/,m=>`पिछली बार: ${m[1]}`,m=>m[0]],
  [/^(Call|WhatsApp) · (.*)$/,m=>`${m[1]==='Call'?'कॉल':'WhatsApp'} · ${m[2]}`,m=>m[0]],
  [/^(\d+) families ko fee reminder bhejna baaki hai$/,m=>`${m[1]} परिवारों को फीस रिमाइंडर भेजना बाकी है`,m=>`${m[1]} families still need a fee reminder`],
